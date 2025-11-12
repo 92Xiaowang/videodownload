@@ -227,6 +227,7 @@
             padding: 10px;
             margin-bottom: 5px;
             border-left: 4px solid var(--warning);
+            transition: all 0.3s ease;
         }
 
         .tip-title {
@@ -481,7 +482,7 @@
                 </button>
             </div>
 
-            <div class="tip-box">
+            <div class="tip-box" id="tipBox">
                 <div class="tip-title">使用提示</div>
                 <div class="tip-content">
                     <ul>
@@ -528,6 +529,7 @@
         const urlInput = document.getElementById('urlInput');
         const parseBtn = document.getElementById('parseBtn');
         const clearBtn = document.getElementById('clearBtn');
+        const tipBox = document.getElementById('tipBox');
         const loadingIndicator = document.getElementById('loadingIndicator');
         const errorMessage = document.getElementById('errorMessage');
         const resultSection = document.getElementById('resultSection');
@@ -535,6 +537,21 @@
         const coverContainer = document.getElementById('coverContainer');
         const resultActions = document.getElementById('resultActions');
         const galleryContainer = document.getElementById('galleryContainer');
+
+        // 显示/隐藏使用提示
+        function toggleTipBox() {
+            if (urlInput.value.trim() === '') {
+                tipBox.style.display = 'block';
+            } else {
+                tipBox.style.display = 'none';
+            }
+        }
+
+        // 初始化显示使用提示
+        toggleTipBox();
+
+        // 监听输入框变化
+        urlInput.addEventListener('input', toggleTipBox);
 
         // 解析视频
         parseBtn.addEventListener('click', () => {
@@ -558,6 +575,7 @@
             loadingIndicator.style.display = 'block';
             errorMessage.style.display = 'none';
             resultSection.style.display = 'none';
+            tipBox.style.display = 'none'; // 隐藏使用提示
             
             // 实际的API调用
             const videoUrl = match[0];
@@ -568,6 +586,7 @@
         clearBtn.addEventListener('click', () => {
             urlInput.value = '';
             urlInput.focus();
+            toggleTipBox(); // 清空后显示使用提示
         });
 
         // 显示错误信息
@@ -576,6 +595,7 @@
             errorMessage.style.display = 'block';
             resultSection.style.display = 'none';
             loadingIndicator.style.display = 'none';
+            toggleTipBox(); // 显示错误时检查是否要显示使用提示
         }
 
         // 显示成功消息
