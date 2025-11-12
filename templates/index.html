@@ -2,2937 +2,659 @@
 <html lang="zh-cmn-Hans">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no"/>
-    <meta name="renderer" content="webkit"/>
-    <meta name="force-rendering" content="webkit"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>视频解析下载</title>
-    <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdui@1.0.0/dist/css/mdui.min.css"/>
-    <script src="https://cdn.jsdelivr.net/npm/mdui@1.0.0/dist/js/mdui.min.js"></script>
-    <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
-</head>
-<body>
-<style>
-    /* 主题选择器样式 */
-    .theme-selector {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 1000;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-        padding: 15px;
-        min-width: 200px;
-        transition: all 0.3s ease;
-    }
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='85'>🎬</text></svg>">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #8b5cf6;
+            --secondary: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.05);
+            --shadow-lg: rgba(0, 0, 0, 0.1);
+        }
 
-    .theme-selector.collapsed {
-        min-width: auto;
-        padding: 10px;
-    }
+        [data-theme="dark"] {
+            --primary: #818cf8;
+            --primary-dark: #6366f1;
+            --primary-light: #a5b4fc;
+            --secondary: #94a3b8;
+            --success: #34d399;
+            --danger: #f87171;
+            --warning: #fbbf24;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #1e293b;
+            --border: #334155;
+            --shadow: rgba(0, 0, 0, 0.2);
+            --shadow-lg: rgba(0, 0, 0, 0.3);
+        }
 
-    .theme-toggle {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-    }
-
-    .theme-toggle:hover {
-        color: #666;
-    }
-
-    .theme-options {
-        margin-top: 12px;
-        display: none;
-    }
-
-    .theme-selector:not(.collapsed) .theme-options {
-        display: block;
-    }
-
-    .theme-option {
-        display: flex;
-        align-items: center;
-        padding: 8px 12px;
-        margin: 4px 0;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .theme-option:hover {
-        background: #f5f5f5;
-    }
-
-    .theme-option.active {
-        background: #e3f2fd;
-        font-weight: 500;
-    }
-
-    .theme-preview {
-        width: 20px;
-        height: 20px;
-        border-radius: 4px;
-        margin-right: 10px;
-        border: 1px solid #ddd;
-    }
-
-    .theme-name {
-        flex: 1;
-    }
-
-    .theme-designer {
-        font-size: 11px;
-        opacity: 0.7;
-        margin-left: 5px;
-    }
-
-    /* 原始主题 - MDUI风格 */
-    .theme-original {
-        background-image: linear-gradient(135deg, #CE9FFC 10%, #7367F0 100%);
-        opacity: 0.3;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: -1;
-        content: "";
-    }
-
-    body.theme-original::before {
-        background-image: linear-gradient(135deg, #CE9FFC 10%, #7367F0 100%);
-        opacity: 0.3;
-        z-index: -1;
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-    }
-
-    .theme-original ::selection {
-        background: rgba(0, 149, 255, .1);
-    }
-
-    /* Dieter Rams 极简功能主义主题 - 灵感转译：Braun产品设计美学 + 参考Kusama/Hadid动态效果 */
-    body.theme-rams {
-        background: #f8f8f8;
-        color: #000000;
-        font-family: 'SF Pro Display', 'Helvetica Neue', 'Arial', sans-serif;
-        font-weight: 400;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        overflow-x: hidden;
-    }
-
-    /* 借鉴Hadid主题的流动背景效果 - 极简版本 */
-    body.theme-rams::before {
-        background:
-            linear-gradient(45deg, rgba(0,122,255,0.02) 0%, transparent 50%),
-            linear-gradient(-45deg, rgba(255,149,0,0.01) 0%, transparent 50%);
-        background-size: 400px 400px;
-        animation: ramsSubtleFlow 20s ease-in-out infinite;
-        pointer-events: none;
-        z-index: -1;
-    }
-
-    @keyframes ramsSubtleFlow {
-        0%, 100% { background-position: 0% 0%, 100% 100%; }
-        50% { background-position: 100% 0%, 0% 100%; }
-    }
-
-    /* Rams风格的主容器 - 体现产品感 */
-    body.theme-rams .mdui-container {
-        max-width: 95vw;
-        width: 100%;
-        min-width: 320px;
-        margin: 60px auto;
-        padding: 0 20px;
-        position: relative;
-        z-index: 2;
-    }
-
-    body.theme-rams .mdui-card {
-        background: #ffffff;
-        border: 1px solid #d1d1d1;
-        box-shadow:
-            0 4px 6px rgba(0,0,0,0.04),
-            0 1px 3px rgba(0,0,0,0.06);
-        opacity: 1;
-        border-radius: 12px;
-        padding: 40px;
-        margin: 0;
-        position: relative;
-        transition: all 0.3s ease;
-        max-width: 800px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    /* 借鉴Kusama主题的装饰元素 - 极简版本 */
-    body.theme-rams .mdui-card::before {
-        content: '';
-        position: absolute;
-        top: -2px;
-        left: -2px;
-        right: -2px;
-        bottom: -2px;
-        background: linear-gradient(45deg, #007aff, #ff9500);
-        border-radius: 14px;
-        z-index: -1;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    body.theme-rams .mdui-card:hover::before {
-        opacity: 0.1;
-    }
-
-    /* Rams风格的头部设计 - 简洁的品牌展示 */
-    body.theme-rams .mdui-img-circle {
-        width: 60px !important;
-        height: 60px !important;
-        border: 2px solid #e5e5e7;
-        border-radius: 50%;
-        margin: 0 auto 30px auto;
-        display: block;
-        background: #ffffff;
-        padding: 4px;
-        box-shadow:
-            0 2px 8px rgba(0,0,0,0.08),
-            0 0 0 1px rgba(0,122,255,0.1);
-        transition: all 0.3s ease;
-    }
-
-    body.theme-rams .mdui-img-circle:hover {
-        transform: scale(1.05);
-        box-shadow:
-            0 4px 12px rgba(0,0,0,0.12),
-            0 0 0 3px rgba(0,122,255,0.1);
-    }
-
-    body.theme-rams h1 {
-        font-size: 28px;
-        font-weight: 700;
-        color: #1d1d1f;
-        margin: 0 0 32px 0;
-        text-align: center;
-        letter-spacing: -0.6px;
-        line-height: 1.1;
-        position: relative;
-    }
-
-    /* 借鉴Vignelli主题的装饰线 */
-    body.theme-rams h1::after {
-        content: '';
-        position: absolute;
-        bottom: -12px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 50px;
-        height: 3px;
-        background: linear-gradient(90deg, #007aff, #ff9500);
-        border-radius: 2px;
-    }
-
-    /* Rams风格的内容排版 */
-    body.theme-rams p {
-        color: #515154;
-        font-size: 16px;
-        line-height: 1.6;
-        margin-bottom: 20px;
-        font-weight: 400;
-        position: relative;
-        z-index: 1;
-    }
-
-    body.theme-rams strong {
-        color: #1d1d1f;
-        font-weight: 700;
-        background: linear-gradient(45deg, rgba(0,122,255,0.1), rgba(255,149,0,0.1));
-        padding: 2px 4px;
-        border-radius: 3px;
-    }
-
-    body.theme-rams hr {
-        border: none;
-        border-top: 1px solid #d2d2d7;
-        margin: 32px 0;
-        position: relative;
-    }
-
-    body.theme-rams hr::before {
-        content: '';
-        position: absolute;
-        top: -1px;
-        left: 20%;
-        right: 20%;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, #007aff, transparent);
-    }
-
-    /* Rams风格的按钮系统 - 借鉴Hadid主题的光效 */
-    body.theme-rams .mdui-btn {
-        background: #007aff;
-        color: #ffffff;
-        border: none;
-        border-radius: 10px;
-        text-transform: none;
-        font-weight: 600;
-        font-size: 17px;
-        padding: 16px 32px;
-        min-height: 52px;
-        letter-spacing: -0.3px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow:
-            0 4px 6px rgba(0,122,255,0.15),
-            0 1px 3px rgba(0,0,0,0.1);
-        position: relative;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    /* 借鉴Hadid主题的光波效果 */
-    body.theme-rams .mdui-btn::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        transition: left 0.6s ease;
-        z-index: 1;
-    }
-
-    body.theme-rams .mdui-btn:hover {
-        background: #0056cc;
-        box-shadow:
-            0 8px 12px rgba(0,122,255,0.25),
-            0 2px 4px rgba(0,0,0,0.1);
-        transform: translateY(-2px);
-    }
-
-    body.theme-rams .mdui-btn:hover::before {
-        left: 100%;
-    }
-
-    body.theme-rams .mdui-btn:active {
-        background: #004999;
-        transform: translateY(-1px);
-        box-shadow:
-            0 4px 6px rgba(0,122,255,0.2),
-            0 1px 2px rgba(0,0,0,0.1);
-    }
-
-    /* 主操作按钮 - 黄色强调 */
-    body.theme-rams .mdui-btn.mdui-color-theme-accent {
-        background: linear-gradient(135deg, #ff9500, #ff8000);
-        box-shadow:
-            0 4px 6px rgba(255,149,0,0.15),
-            0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    body.theme-rams .mdui-btn.mdui-color-theme-accent:hover {
-        background: linear-gradient(135deg, #e6850e, #ff6b00);
-        box-shadow:
-            0 8px 12px rgba(255,149,0,0.25),
-            0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    /* 次要按钮 - 灰色调 */
-    body.theme-rams .mdui-btn.mdui-color-red {
-        background: linear-gradient(135deg, #8e8e93, #6d6d70);
-        box-shadow:
-            0 4px 6px rgba(142,142,147,0.15),
-            0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    body.theme-rams .mdui-btn.mdui-color-red:hover {
-        background: linear-gradient(135deg, #636366, #4a4a4d);
-        box-shadow:
-            0 8px 12px rgba(142,142,147,0.25),
-            0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    /* Rams风格的输入框设计 - 借鉴其他主题的焦点效果 */
-    body.theme-rams .mdui-textfield {
-        margin: 32px 0;
-        position: relative;
-    }
-
-    body.theme-rams .mdui-textfield-input {
-        border: 2px solid #d2d2d7;
-        border-radius: 12px;
-        background: #ffffff;
-        font-size: 17px;
-        padding: 16px 20px;
-        height: 52px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        color: #1d1d1f;
-        font-weight: 500;
-        box-shadow:
-            0 2px 4px rgba(0,0,0,0.04),
-            inset 0 1px 2px rgba(0,0,0,0.06);
-    }
-
-    body.theme-rams .mdui-textfield-input:focus {
-        border-color: #007aff;
-        outline: none;
-        box-shadow:
-            0 0 0 4px rgba(0,122,255,0.15),
-            0 4px 12px rgba(0,0,0,0.1),
-            inset 0 1px 2px rgba(0,0,0,0.06);
-        transform: translateY(-1px);
-        background: linear-gradient(to bottom, #ffffff, #fafbff);
-    }
-
-    body.theme-rams .mdui-textfield-input::placeholder {
-        color: #8e8e93;
-        font-weight: 400;
-        transition: opacity 0.3s ease;
-    }
-
-    body.theme-rams .mdui-textfield-input:focus::placeholder {
-        opacity: 0.7;
-    }
-
-    /* Rams风格的解析结果区域 */
-    body.theme-rams .down {
-        margin-top: 48px;
-        padding-top: 32px;
-        border-top: 2px solid #d2d2d7;
-        position: relative;
-    }
-
-    body.theme-rams .down::before {
-        content: '';
-        position: absolute;
-        top: -2px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 80px;
-        height: 4px;
-        background: linear-gradient(90deg, #007aff, #ff9500);
-        border-radius: 2px;
-    }
-
-    body.theme-rams .down h4 {
-        font-size: 22px;
-        font-weight: 700;
-        color: #1d1d1f;
-        margin: 0 0 32px 0;
-        text-align: center;
-        letter-spacing: -0.3px;
-        position: relative;
-    }
-
-    body.theme-rams .down h4::after {
-        content: '';
-        position: absolute;
-        bottom: -12px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 40px;
-        height: 2px;
-        background: linear-gradient(90deg, #007aff, #ff9500);
-        border-radius: 1px;
-    }
-
-    body.theme-rams .down .mdui-btn {
-        margin: 10px;
-        min-width: 120px;
-        max-width: 160px;
-        font-size: 15px;
-        padding: 14px 24px;
-        min-height: 48px;
-        border-radius: 12px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    /* 图片展示区域 - 借鉴其他主题的悬停效果 */
-    body.theme-rams .down div[style*="display: inline-block"] {
-        margin: 16px;
-        padding: 20px;
-        border: 1px solid #e5e5e7;
-        border-radius: 16px;
-        background: #ffffff;
-        text-align: center;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-    }
-
-    body.theme-rams .down div[style*="display: inline-block"]::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, #007aff, #ff9500);
-        transform: translateY(-100%);
-        transition: transform 0.3s ease;
-    }
-
-    body.theme-rams .down div[style*="display: inline-block"]:hover {
-        background: linear-gradient(to bottom, #ffffff, #f8faff);
-        border-color: #007aff;
-        transform: translateY(-4px);
-        box-shadow:
-            0 12px 24px rgba(0,122,255,0.15),
-            0 4px 8px rgba(0,0,0,0.1);
-    }
-
-    body.theme-rams .down div[style*="display: inline-block"]:hover::before {
-        transform: translateY(0);
-    }
-
-    body.theme-rams .down img {
-        border-radius: 12px;
-        border: 1px solid #e5e5e7;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
-    }
-
-    body.theme-rams .down img:hover {
-        transform: scale(1.03);
-        box-shadow: 0 8px 16px rgba(0,122,255,0.2);
-        border-color: #007aff;
-    }
-
-    /* Rams风格的细节优化 */
-    body.theme-rams .mdui-textfield-error {
-        color: #ff3b30;
-        font-size: 14px;
-        margin-top: 8px;
-        font-weight: 500;
-        padding: 8px 12px;
-        background: rgba(255,59,48,0.1);
-        border-radius: 6px;
-        border-left: 3px solid #ff3b30;
-    }
-
-    /* 加载状态 - 借鉴其他主题的动画 */
-    body.theme-rams .loading {
-        color: #007aff;
-        font-style: italic;
-        position: relative;
-        display: inline-block;
-    }
-
-    body.theme-rams .loading::after {
-        content: '...';
-        animation: ramsLoading 1.5s infinite;
-    }
-
-    @keyframes ramsLoading {
-        0%, 60%, 100% { opacity: 1; }
-        30% { opacity: 0.3; }
-    }
-
-    /* Rams风格的响应式设计 */
-    @media (max-width: 768px) {
-        body.theme-rams .mdui-container {
-            margin: 40px 16px;
+        * {
+            margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
         }
 
-        body.theme-rams .mdui-card {
-            padding: 32px 24px;
-            border-radius: 0;
-            border-left: none;
-            border-right: none;
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 20%);
         }
 
-        body.theme-rams h1 {
-            font-size: 24px;
-            margin-bottom: 32px;
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
         }
 
-        body.theme-rams .mdui-btn {
-            width: 100%;
-            margin: 8px 0;
-            font-size: 17px;
+        .card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px var(--shadow);
+            border: 1px solid var(--border);
+            margin-top: 30px;
+            position: relative;
+            overflow: hidden;
         }
 
-        body.theme-rams .mdui-textfield-input {
-            font-size: 16px; /* 防止iOS缩放 */
-        }
-    }
-
-    /* 暗色模式适配 */
-    @media (prefers-color-scheme: dark) {
-        body.theme-rams {
-            background: #000000;
-            color: #f5f5f7;
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
         }
 
-        body.theme-rams .mdui-card {
-            background: #1c1c1e;
-            border-color: #38383a;
-        }
-
-        body.theme-rams .mdui-textfield-input {
-            background: #1c1c1e;
-            border-color: #38383a;
-            color: #f5f5f7;
-        }
-
-        body.theme-rams .mdui-textfield-input::placeholder {
-            color: #8e8e93;
-        }
-
-        body.theme-rams h1,
-        body.theme-rams strong {
-            color: #f5f5f7;
-        }
-
-        body.theme-rams p {
-            color: #a1a1a6;
-        }
-
-        body.theme-rams .mdui-img-circle {
-            border-color: #38383a;
-            background: #2c2c2e;
-        }
-
-        body.theme-rams .down {
-            border-color: #38383a;
-        }
-
-        body.theme-rams .down div[style*="display: inline-block"] {
-            background: #2c2c2e;
-            border-color: #38383a;
-        }
-
-        body.theme-rams .down div[style*="display: inline-block"]:hover {
-            background: #3a3a3c;
-        }
-
-        body.theme-rams hr {
-            border-color: #38383a;
-        }
-    }
-
-    /* Massimo Vignelli 现代网格主题 - 灵感转译：纽约地铁图系统 + 参考其他主题效果 */
-    body.theme-vignelli {
-        background: #ffffff;
-        color: #000000;
-        font-family: 'Helvetica Neue Bold', 'Arial Black', sans-serif;
-        font-weight: 700;
-        overflow-x: hidden;
-        line-height: 1.4;
-    }
-
-    /* 借鉴Hadid主题的流动背景 - 网格版 */
-    body.theme-vignelli::before {
-        background-image:
-            linear-gradient(90deg, #ff0000 1px, transparent 1px),
-            linear-gradient(180deg, #ff0000 1px, transparent 1px),
-            linear-gradient(90deg, #0066cc 2px, transparent 2px),
-            linear-gradient(180deg, #0066cc 2px, transparent 2px),
-            linear-gradient(45deg, rgba(255,0,0,0.01) 0%, transparent 50%),
-            linear-gradient(-45deg, rgba(0,102,204,0.01) 0%, transparent 50%);
-        background-size: 80px 80px, 160px 160px, 300px 300px, 400px 400px;
-        background-position: -1px -1px;
-        animation: vignelliDynamicGrid 15s ease-in-out infinite;
-        opacity: 0.03;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        content: '';
-        pointer-events: none;
-        z-index: 1;
-    }
-
-    @keyframes vignelliDynamicGrid {
-        0%, 100% { background-position: 0% 0%, 100% 100%, 0% 0%, 100% 100%; }
-        50% { background-position: 100% 0%, 0% 100%, 100% 0%, 0% 100%; }
-    }
-
-    body.theme-vignelli .mdui-container {
-        position: relative;
-        z-index: 2;
-        max-width: 90vw;
-        width: 100%;
-        min-width: 320px;
-        margin: 0 auto;
-        padding: 40px 30px;
-    }
-
-    body.theme-vignelli .mdui-card {
-        background: #ffffff;
-        border: none;
-        box-shadow: none;
-        opacity: 1;
-        border-radius: 0;
-        padding: 15px;
-        margin: 0 auto;
-        position: relative;
-        max-width: 1000px;
-    }
-
-    /* 借鉴Kusama主题的装饰元素 */
-    body.theme-vignelli .mdui-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 6px;
-        height: 100%;
-        background: linear-gradient(to bottom, #ff0000, #0066cc);
-        z-index: 0;
-    }
-
-    body.theme-vignelli .mdui-card::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 6px;
-        height: 100%;
-        background: linear-gradient(to bottom, #0066cc, #ff0000);
-        z-index: 0;
-    }
-
-    /* Vignelli风格的严格网格布局 */
-    body.theme-vignelli .mdui-card > * {
-        margin-bottom: 25px;
-        position: relative;
-        z-index: 1;
-    }
-
-    /* 品牌标识 - 借鉴Hadid主题的动态效果 */
-    body.theme-vignelli .mdui-img-circle {
-        width: 100px !important;
-        height: 100px !important;
-        border: 6px solid #000000;
-        margin: 0 auto 25px auto;
-        display: block;
-        background: linear-gradient(45deg, #ff0000, #0066cc);
-        padding: 5px;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        animation: vignelliLogoRotate 20s linear infinite;
-    }
-
-    @keyframes vignelliLogoRotate {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    body.theme-vignelli .mdui-img-circle:hover {
-        animation-play-state: paused;
-        transform: scale(1.1) rotate(10deg);
-        box-shadow: 0 0 30px rgba(255,0,0,0.3);
-    }
-
-    /* Vignelli风格的标题系统 - 借鉴动态效果 */
-    body.theme-vignelli h1 {
-        font-size: 42px;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: -3px;
-        line-height: 0.9;
-        color: #000000;
-        margin: 0 0 25px 0;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-    }
-
-    body.theme-vignelli h1::after {
-        content: '';
-        position: absolute;
-        bottom: -15px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 100px;
-        height: 8px;
-        background: linear-gradient(90deg, #ff0000, #0066cc, #ff0000);
-        background-size: 200% 100%;
-        animation: vignelliGradient 8s ease-in-out infinite;
-        border-radius: 4px;
-    }
-
-    @keyframes vignelliGradient {
-        0%, 100% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-    }
-
-    /* Vignelli风格的正文排版 */
-    body.theme-vignelli p {
-        font-size: 18px;
-        line-height: 1.6;
-        color: #333333;
-        margin: 0 0 20px 0;
-        max-width: 1000px;
-        margin-left: auto;
-        margin-right: auto;
-        font-weight: 500;
-        text-align: justify;
-        columns: 2;
-        column-gap: 60px;
-        position: relative;
-    }
-
-    /* 修复mdui-typo下的文字显示为单列 */
-    body.theme-vignelli .mdui-typo p {
-        columns: 1;
-        text-align: left;
-        max-width: 100%;
-        column-gap: 0;
-    }
-
-    /* 借鉴Kusama主题的强调效果 */
-    body.theme-vignelli strong {
-        font-weight: 900;
-        color: #000000;
-        background: linear-gradient(45deg, #ffc72c, #ff9500);
-        padding: 2px 8px;
-        border-radius: 3px;
-        position: relative;
-        animation: vignelliPulse 3s ease-in-out infinite;
-    }
-
-    @keyframes vignelliPulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-    }
-
-    body.theme-vignelli hr {
-        border: none;
-        border-top: 4px solid #000000;
-        margin: 30px 0;
-        position: relative;
-        overflow: hidden;
-    }
-
-    body.theme-vignelli hr::before {
-        content: '◆';
-        position: absolute;
-        top: -12px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #ffffff;
-        padding: 0 20px;
-        font-size: 28px;
-        color: #ff0000;
-        animation: vignelliSymbol 2s ease-in-out infinite;
-    }
-
-    @keyframes vignelliSymbol {
-        0%, 100% { transform: translateX(-50%) scale(1); }
-        50% { transform: translateX(-50%) scale(1.2); }
-    }
-
-    /* Vignelli风格的按钮系统 - 借鉴Hadid主题的光效 */
-    body.theme-vignelli .mdui-btn {
-        background: #000000;
-        color: #ffffff;
-        border: none;
-        border-radius: 0;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        font-size: 13px;
-        padding: 16px 32px;
-        min-height: 50px;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        margin: 12px;
-        position: relative;
-        overflow: hidden;
-        clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 0 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    /* 借鉴Hadid主题的光波效果 */
-    body.theme-vignelli .mdui-btn::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-        transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 0;
-    }
-
-    body.theme-vignelli .mdui-btn::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        right: 10px;
-        transform: translateY(-50%);
-        width: 0;
-        height: 0;
-        border-style: solid;
-        border-width: 8px 0 8px 16px;
-        border-color: transparent transparent transparent #ffffff;
-        transition: all 0.4s ease;
-        z-index: 1;
-    }
-
-    body.theme-vignelli .mdui-btn span {
-        position: relative;
-        z-index: 2;
-        margin-right: 15px;
-    }
-
-    body.theme-vignelli .mdui-btn:hover {
-        transform: translateX(15px);
-        box-shadow: 10px 10px 0 #000000;
-        background: linear-gradient(45deg, #ff0000, #0066cc);
-    }
-
-    body.theme-vignelli .mdui-btn:hover::before {
-        left: 100%;
-    }
-
-    body.theme-vignelli .mdui-btn:hover::after {
-        right: 10px;
-        border-color: transparent transparent transparent rgba(255,255,255,0.8);
-        transform: translateY(-50%) translateX(10px);
-    }
-
-    /* 地铁线色彩系统 - 增强效果 */
-    body.theme-vignelli .mdui-btn.mdui-color-theme-accent {
-        background: linear-gradient(45deg, #ff0000, #ff3333);
-        clip-path: polygon(20px 0, 100% 0, 100% 100%, 0 100%, 0 50%);
-        box-shadow: 5px 5px 0 #ff0000;
-    }
-
-    body.theme-vignelli .mdui-btn.mdui-color-theme-accent::after {
-        left: 10px;
-        right: auto;
-        transform: translateY(-50%) rotate(180deg);
-    }
-
-    body.theme-vignelli .mdui-btn.mdui-color-theme-accent span {
-        margin-left: 20px;
-        margin-right: 0;
-    }
-
-    body.theme-vignelli .mdui-btn.mdui-color-theme-accent:hover {
-        background: linear-gradient(45deg, #ff3333, #ff6666);
-        box-shadow: 15px 15px 0 #ff0000;
-    }
-
-    body.theme-vignelli .mdui-btn.mdui-color-red {
-        background: linear-gradient(45deg, #0066cc, #3399ff);
-        clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 90%, calc(100% - 10px) 100%, 0 100%);
-        box-shadow: 5px 5px 0 #0066cc;
-    }
-
-    body.theme-vignelli .mdui-btn.mdui-color-red:hover {
-        background: linear-gradient(45deg, #3399ff, #66bbff);
-        box-shadow: 15px 15px 0 #0066cc;
-    }
-
-    /* Vignelli风格的输入框 - 借鉴其他主题的效果 */
-    body.theme-vignelli .mdui-textfield {
-        position: relative;
-        margin: 25px 0;
-        max-width: 700px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    body.theme-vignelli .mdui-textfield::before {
-        content: 'URL INPUT';
-        position: absolute;
-        top: -30px;
-        left: 0;
-        font-size: 12px;
-        font-weight: 900;
-        letter-spacing: 2px;
-        color: #ff0000;
-        animation: vignelliBlink 2s ease-in-out infinite;
-    }
-
-    @keyframes vignelliBlink {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-    }
-
-    body.theme-vignelli .mdui-textfield-input {
-        border: none;
-        border-bottom: 3px solid #000000;
-        border-radius: 0;
-        background: transparent;
-        font-size: 20px;
-        font-weight: 700;
-        padding: 16px 0;
-        height: auto;
-        color: #000000;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        letter-spacing: 0.5px;
-        position: relative;
-    }
-
-    /* 借鉴其他主题的焦点效果 */
-    body.theme-vignelli .mdui-textfield-input::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #ff0000, #0066cc);
-        transition: width 0.4s ease;
-    }
-
-    body.theme-vignelli .mdui-textfield-input:focus {
-        outline: none;
-        border-bottom-width: 8px;
-        border-color: #ff0000;
-        margin-top: 4px;
-        background: linear-gradient(to bottom, rgba(255,0,0,0.05), transparent);
-        color: #ff0000;
-    }
-
-    body.theme-vignelli .mdui-textfield-input:focus::after {
-        width: 100%;
-    }
-
-    body.theme-vignelli .mdui-textfield-input::placeholder {
-        color: #999999;
-        font-style: italic;
-        font-weight: 400;
-        transition: all 0.3s ease;
-    }
-
-    body.theme-vignelli .mdui-textfield-input:focus::placeholder {
-        color: #ff6666;
-        font-style: normal;
-    }
-
-    /* Vignelli风格的解析结果区域 */
-    body.theme-vignelli .down {
-        border-top: 3px solid #000000;
-        padding-top: 30px;
-        margin-top: 30px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    body.theme-vignelli .down::before {
-        content: 'PARSED RESULTS';
-        position: absolute;
-        top: -20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #ffffff;
-        padding: 0 40px;
-        font-size: 14px;
-        font-weight: 900;
-        letter-spacing: 4px;
-        color: #ff0000;
-        animation: vignelliBlink 3s ease-in-out infinite;
-    }
-
-    body.theme-vignelli .down::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #ff0000, #0066cc, #ff0000);
-        animation: vignelliGradient 6s ease-in-out infinite;
-    }
-
-    body.theme-vignelli .down h4 {
-        font-size: 22px;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: -1px;
-        color: #000000;
-        margin: 0 0 25px 0;
-        text-align: center;
-        position: relative;
-    }
-
-    body.theme-vignelli .down h4::after {
-        content: '';
-        position: absolute;
-        bottom: -10px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 80px;
-        height: 3px;
-        background: linear-gradient(90deg, #0066cc, #ff0000);
-        border-radius: 2px;
-    }
-
-    body.theme-vignelli .down div[style*="display: inline-block"] {
-        display: inline-block;
-        margin: 15px;
-        padding: 0;
-        border: 4px solid #000000;
-        background: #ffffff;
-        text-align: center;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-        clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px));
-    }
-
-    /* 借鉴Hadid主题的内部光效 */
-    body.theme-vignelli .down div[style*="display: inline-block"]::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(45deg, transparent 30%, rgba(255,0,0,0.05) 50%, transparent 70%);
-        opacity: 0;
-        transition: opacity 0.4s ease;
-        animation: vignelliCardFlow 8s linear infinite;
-    }
-
-    @keyframes vignelliCardFlow {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    body.theme-vignelli .down div[style*="display: inline-block"]:hover {
-        background: linear-gradient(45deg, #ff0000, #0066cc);
-        transform: translateY(-15px) rotate(3deg);
-        box-shadow: 15px 15px 0 #000000;
-    }
-
-    body.theme-vignelli .down div[style*="display: inline-block"]:hover::before {
-        opacity: 1;
-    }
-
-    body.theme-vignelli .down div[style*="display: inline-block"]:hover img {
-        filter: invert(1) hue-rotate(180deg);
-    }
-
-    body.theme-vignelli .down img {
-        width: 240px !important;
-        height: auto;
-        border: none;
-        margin: 0;
-        padding: 24px;
-        transition: all 0.4s ease;
-        display: block;
-        position: relative;
-        z-index: 1;
-    }
-
-    body.theme-vignelli .down .mdui-btn {
-        margin: 20px;
-        min-width: 120px;
-        max-width: 160px;
-        font-size: 12px;
-        padding: 18px 24px;
-        min-height: 52px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        overflow: hidden;
-        clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 0 100%);
-    }
-
-    /* 为下载区域的按钮添加箭头效果 */
-    body.theme-vignelli .down .mdui-btn::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        right: 10px;
-        transform: translateY(-50%);
-        width: 0;
-        height: 0;
-        border-style: solid;
-        border-width: 8px 0 8px 16px;
-        border-color: transparent transparent transparent #ffffff;
-        transition: all 0.4s ease;
-        z-index: 1;
-    }
-
-    body.theme-vignelli .down .mdui-btn span {
-        position: relative;
-        z-index: 2;
-        margin-right: 15px;
-    }
-
-    /* 下载区域按钮悬浮效果 */
-    body.theme-vignelli .down .mdui-btn::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-        transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 0;
-    }
-
-    body.theme-vignelli .down .mdui-btn:hover {
-        transform: translateX(15px);
-        box-shadow: 10px 10px 0 #000000;
-        background: linear-gradient(45deg, #ff0000, #0066cc);
-    }
-
-    body.theme-vignelli .down .mdui-btn:hover::before {
-        left: 100%;
-    }
-
-    body.theme-vignelli .down .mdui-btn:hover::after {
-        right: 10px;
-        border-color: transparent transparent transparent rgba(255,255,255,0.8);
-        transform: translateY(-50%) translateX(10px);
-    }
-
-    /* Vignelli颜色系统的应用 */
-    body.theme-vignelli .vignelli-red { color: #ff0000; }
-    body.theme-vignelli .vignelli-blue { color: #0066cc; }
-    body.theme-vignelli .vignelli-yellow { color: #ffc72c; }
-    body.theme-vignelli .vignelli-green { color: #00a652; }
-    body.theme-vignelli .vignelli-orange { color: #ff6600; }
-    body.theme-vignelli .vignelli-purple { color: #8b5fbf; }
-
-    /* Vignelli风格的装饰元素 */
-    body.theme-vignelli .vignelli-corner {
-        position: fixed;
-        width: 100px;
-        height: 100px;
-        background: #ff0000;
-        z-index: 1000;
-    }
-
-    body.theme-vignelli .vignelli-corner.top-left {
-        top: 0;
-        left: 0;
-        clip-path: polygon(0 0, 100% 0, 0 100%);
-    }
-
-    body.theme-vignelli .vignelli-corner.top-right {
-        top: 0;
-        right: 0;
-        clip-path: polygon(0 0, 100% 0, 100% 100%);
-        background: #0066cc;
-    }
-
-    body.theme-vignelli .vignelli-corner.bottom-left {
-        bottom: 0;
-        left: 0;
-        clip-path: polygon(0 0, 0 100%, 100% 100%);
-        background: #0066cc;
-    }
-
-    body.theme-vignelli .vignelli-corner.bottom-right {
-        bottom: 0;
-        right: 0;
-        clip-path: polygon(100% 0, 100% 100%, 0 100%);
-        background: #ff0000;
-    }
-
-    /* 响应式设计 */
-    @media (max-width: 1200px) {
-        body.theme-vignelli .mdui-container {
-            padding: 60px 40px;
-            max-width: 95vw;
-        }
-
-        body.theme-vignelli .mdui-typo p {
-            columns: 1;
-            max-width: 700px;
-        }
-    }
-
-    @media (max-width: 768px) {
-        body.theme-vignelli .mdui-container {
-            padding: 40px 20px;
-            max-width: 98vw;
-        }
-
-        body.theme-vignelli h1 {
-            font-size: 36px;
-            letter-spacing: -1px;
-        }
-
-        body.theme-vignelli .mdui-img-circle {
-            width: 90px !important;
-            height: 90px !important;
-            border-width: 6px;
-            border-radius: 50% !important;
-            object-fit: cover;
-        }
-
-        body.theme-vignelli .mdui-textfield-input {
-            font-size: 18px;
-        }
-
-        body.theme-vignelli .down div[style*="display: inline-block"] {
-            display: block;
-            margin: 20px auto;
-            max-width: 300px;
-        }
-
-        body.theme-vignelli .down img {
-            width: 100% !important;
-            max-width: 260px;
-        }
-
-        body.theme-vignelli .mdui-btn {
-            width: 100%;
-            max-width: 300px;
-            margin: 10px auto;
-            display: block;
-        }
-
-        /* 隐藏装饰角落 */
-        body.theme-vignelli .vignelli-corner {
-            display: none;
-        }
-    }
-
-    /* 添加数据属性支持 */
-    body.theme-vignelli .mdui-btn[data-text]::after {
-        content: attr(data-text);
-    }
-
-    /* Yayoi Kusama 波点艺术主题 */
-    body.theme-kusama {
-        background: #fff0f5;
-        color: #d81b60;
-        font-family: 'Georgia', serif;
-        overflow-x: hidden;
-    }
-
-    body.theme-kusama::before {
-        background-image:
-            radial-gradient(circle at 20% 80%, rgba(216, 27, 96, 0.08) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(233, 30, 99, 0.08) 0%, transparent 50%),
-            radial-gradient(circle at 40% 40%, rgba(240, 98, 146, 0.08) 0%, transparent 50%),
-            radial-gradient(circle at 60% 70%, rgba(216, 27, 96, 0.06) 0%, transparent 40%),
-            radial-gradient(circle at 30% 30%, rgba(233, 30, 99, 0.06) 0%, transparent 40%);
-        animation: kusamaFloat 25s ease-in-out infinite;
-    }
-
-    @keyframes kusamaFloat {
-        0%, 100% { transform: translate(0, 0) rotate(0deg); }
-        25% { transform: translate(-15px, -15px) rotate(90deg); }
-        50% { transform: translate(15px, -10px) rotate(180deg); }
-        75% { transform: translate(-10px, 15px) rotate(270deg); }
-    }
-
-    body.theme-kusama .mdui-card {
-        background: white;
-        border: 3px dotted #d81b60;
-        border-radius: 20px;
-        padding: 2.5em;
-        margin: 2em auto;
-        max-width: 95%;
-        opacity: 0.95;
-        box-shadow: 0 0 30px rgba(216, 27, 96, 0.2);
-        position: relative;
-        overflow: visible;
-    }
-
-    body.theme-kusama .mdui-card::before,
-    body.theme-kusama .mdui-card::after {
-        content: '';
-        position: absolute;
-        width: 20px;
-        height: 20px;
-        background: radial-gradient(circle, #d81b60 0%, #ff69b4 50%, transparent 70%);
-        border-radius: 50%;
-        animation: kusamaPulse 3s ease-in-out infinite;
-    }
-
-    body.theme-kusama .mdui-card::before {
-        top: -10px;
-        left: 20px;
-        animation-delay: 0s;
-    }
-
-    body.theme-kusama .mdui-card::after {
-        bottom: -10px;
-        right: 20px;
-        animation-delay: 1.5s;
-    }
-
-    @keyframes kusamaPulse {
-        0%, 100% { transform: scale(1); opacity: 0.8; }
-        50% { transform: scale(1.2); opacity: 1; }
-    }
-
-    body.theme-kusama .mdui-btn {
-        background: linear-gradient(45deg, #d81b60, #ff69b4);
-        color: white;
-        border-radius: 25px;
-        border: 2px solid transparent;
-        font-weight: 600;
-        position: relative;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-    }
-
-    body.theme-kusama .mdui-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(216, 27, 96, 0.4);
-        background: linear-gradient(45deg, #ff69b4, #d81b60);
-    }
-
-    body.theme-kusama .mdui-btn::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
-        transform: translate(-50%, -50%);
-        transition: width 0.4s, height 0.4s;
-    }
-
-    body.theme-kusama .mdui-btn:hover::before {
-        width: 200px;
-        height: 200px;
-    }
-
-    body.theme-kusama .mdui-textfield-input {
-        border: 2px dotted #d81b60;
-        border-radius: 20px;
-        background: rgba(255, 240, 245, 0.9);
-        color: #d81b60;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        box-shadow: inset 0 2px 4px rgba(216, 27, 96, 0.1);
-    }
-
-    body.theme-kusama .mdui-textfield-input:focus {
-        border-color: #ff69b4;
-        background: rgba(255, 255, 255, 0.95);
-        box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.2), inset 0 2px 4px rgba(216, 27, 96, 0.1);
-    }
-
-    body.theme-kusama .mdui-textfield-input::placeholder {
-        color: rgba(216, 27, 96, 0.6);
-    }
-
-    /* 波点主题的容器和布局调整 */
-    body.theme-kusama .mdui-container {
-        max-width: 1000px;
-        margin-top: 5em;
-        margin-bottom: 3em;
-    }
-
-    body.theme-kusama h1 {
-        color: #d81b60;
-        font-weight: 600;
-        text-shadow: 2px 2px 4px rgba(216, 27, 96, 0.1);
-        margin-bottom: 1.5em;
-    }
-
-    body.theme-kusama .mdui-img-circle {
-        border: 3px solid #d81b60;
-        box-shadow: 0 0 20px rgba(216, 27, 96, 0.3);
-    }
-
-    body.theme-kusama p {
-        line-height: 1.8;
-        opacity: 0.9;
-    }
-
-    /* 为经典MDUI主题添加图片悬浮效果 - 增强优先级 */
-    body.theme-original .down div[style*="display: inline-block"] img {
-        transition: all 0.3s ease !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-        border-radius: 8px !important;
-        cursor: pointer !important;
-        border: 2px solid transparent !important;
-    }
-
-    body.theme-original .down div[style*="display: inline-block"] img:hover {
-        transform: scale(1.08) !important;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25) !important;
-        border-color: #ff4081 !important;
-        filter: brightness(1.05) !important;
-    }
-
-    /* 确保覆盖内联样式 */
-    body.theme-original .down img[src]:hover {
-        transform: scale(1.08) !important;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25) !important;
-        border-color: #ff4081 !important;
-        filter: brightness(1.05) !important;
-    }
-
-    /* 为波点艺术主题添加图片悬浮动画 */
-    body.theme-kusama .down img:hover {
-        transform: scale(1.08) rotate(5deg);
-        box-shadow: 0 8px 20px rgba(216, 27, 96, 0.3);
-        filter: brightness(1.1);
-        transition: all 0.3s ease;
-    }
-
-    /* 波点艺术主题图片悬浮时的额外装饰 */
-    body.theme-kusama .down div[style*="display: inline-block"]:hover img::after {
-        content: '◈';
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        color: #d81b60;
-        font-size: 24px;
-        text-shadow: 0 2px 4px rgba(216, 27, 96, 0.3);
-        animation: kusamaPulse 2s ease-in-out infinite;
-    }
-
-    body.theme-kusama strong {
-        color: #d81b60;
-        font-weight: 700;
-    }
-
-    body.theme-kusama .down {
-        margin-top: 2em;
-        padding-top: 1.5em;
-        border-top: 2px dotted #d81b60;
-    }
-
-    body.theme-kusama .down .mdui-btn {
-        margin: 0.5em;
-        min-width: 120px;
-    }
-
-    /* 梦幻星空主题 - 灵感来自Yayoi Kusama和John Maeda */
-    body.theme-starry {
-        background: #0a0a1a;
-        color: #e0e6ff;
-        font-family: 'SF Pro Display', 'Helvetica Neue', 'Arial', sans-serif;
-        overflow-x: hidden;
-        position: relative;
-    }
-
-    /* 动态星空背景 - Kusama风格的无限波点宇宙 */
-    body.theme-starry::before {
-        background:
-            radial-gradient(circle at 15% 20%, rgba(147, 51, 234, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 85% 80%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
-            radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.08) 0%, transparent 60%),
-            radial-gradient(circle at 25% 75%, rgba(236, 72, 153, 0.06) 0%, transparent 40%),
-            radial-gradient(circle at 75% 25%, rgba(34, 211, 238, 0.04) 0%, transparent 30%);
-        background-size: 400% 400%, 300% 300%, 500% 500%, 200% 200%, 600% 600%;
-        animation: starryGalaxyFlow 30s ease-in-out infinite;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        content: '';
-        pointer-events: none;
-        z-index: -2;
-    }
-
-    @keyframes starryGalaxyFlow {
-        0%, 100% {
-            background-position: 0% 0%, 100% 100%, 50% 50%, 25% 75%, 75% 25%;
-            filter: hue-rotate(0deg) brightness(1);
-        }
-        25% {
-            background-position: 100% 0%, 0% 100%, 75% 25%, 50% 50%, 25% 75%;
-            filter: hue-rotate(20deg) brightness(1.1);
-        }
-        50% {
-            background-position: 100% 100%, 0% 0%, 25% 75%, 75% 25%, 50% 50%;
-            filter: hue-rotate(-10deg) brightness(0.9);
-        }
-        75% {
-            background-position: 0% 100%, 100% 0%, 50% 50%, 25% 75%, 75% 25%;
-            filter: hue-rotate(15deg) brightness(1.05);
-        }
-    }
-
-    /* John Maeda风格的生成星星 - 动态交互元素 */
-    body.theme-starry::after {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-image:
-            radial-gradient(1px 1px at 20px 30px, rgba(255, 255, 255, 0.8), transparent),
-            radial-gradient(1px 1px at 40px 70px, rgba(147, 197, 253, 0.6), transparent),
-            radial-gradient(2px 2px at 90px 40px, rgba(196, 181, 253, 0.7), transparent),
-            radial-gradient(1px 1px at 130px 80px, rgba(251, 207, 232, 0.5), transparent),
-            radial-gradient(1px 1px at 160px 30px, rgba(255, 255, 255, 0.9), transparent);
-        background-repeat: repeat;
-        background-size: 200px 100px;
-        animation: starryTwinkle 4s ease-in-out infinite;
-        pointer-events: none;
-        z-index: -1;
-    }
-
-    @keyframes starryTwinkle {
-        0%, 100% {
-            opacity: 0.8;
-            transform: scale(1);
-        }
-        50% {
-            opacity: 1;
-            transform: scale(1.05);
-        }
-    }
-
-    /* 主容器 - 星空中的漂浮卡片 */
-    body.theme-starry .mdui-container {
-        max-width: 900px;
-        margin: 40px auto;
-        padding: 0 20px;
-        position: relative;
-        z-index: 2;
-    }
-
-    body.theme-starry .mdui-card {
-        background: rgba(15, 23, 42, 0.85);
-        backdrop-filter: blur(20px) saturate(150%);
-        border: 1px solid rgba(147, 197, 253, 0.2);
-        border-radius: 24px;
-        padding: 48px;
-        margin: 0 auto;
-        position: relative;
-        overflow: hidden;
-        box-shadow:
-            0 20px 40px rgba(0, 0, 0, 0.4),
-            0 0 0 1px rgba(147, 197, 253, 0.1),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1),
-            inset 0 -1px 0 rgba(0, 0, 0, 0.3);
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* Kusama风格的波点装饰 */
-    body.theme-starry .mdui-card::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background-image:
-            radial-gradient(circle at 20% 20%, rgba(147, 51, 234, 0.03) 2px, transparent 2px),
-            radial-gradient(circle at 80% 30%, rgba(59, 130, 246, 0.04) 3px, transparent 3px),
-            radial-gradient(circle at 40% 70%, rgba(236, 72, 153, 0.03) 2px, transparent 2px),
-            radial-gradient(circle at 70% 80%, rgba(34, 211, 238, 0.02) 4px, transparent 4px);
-        background-size: 120px 120px, 150px 150px, 100px 100px, 180px 180px;
-        animation: starryDotsFloat 25s linear infinite;
-        pointer-events: none;
-        z-index: -1;
-    }
-
-    @keyframes starryDotsFloat {
-        0% { transform: rotate(0deg) translateX(0px); }
-        100% { transform: rotate(360deg) translateX(20px); }
-    }
-
-    body.theme-starry .mdui-card:hover {
-        transform: translateY(-8px) scale(1.02);
-        box-shadow:
-            0 30px 60px rgba(0, 0, 0, 0.5),
-            0 0 0 2px rgba(147, 197, 253, 0.3),
-            inset 0 1px 0 rgba(255, 255, 255, 0.2);
-        border-color: rgba(147, 197, 253, 0.4);
-    }
-
-    /* 头像 - 星光环绕效果 */
-    body.theme-starry .mdui-img-circle {
-        width: 120px !important;
-        height: 120px !important;
-        border: 3px solid rgba(147, 197, 253, 0.3);
-        border-radius: 50%;
-        margin: 0 auto 40px auto;
-        display: block;
-        background: rgba(15, 23, 42, 0.8);
-        padding: 6px;
-        box-shadow:
-            0 0 30px rgba(147, 197, 253, 0.4),
-            0 0 60px rgba(147, 51, 234, 0.2),
-            0 8px 32px rgba(0, 0, 0, 0.3);
-        position: relative;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* 星光脉冲效果 */
-    body.theme-starry .mdui-img-circle::before {
-        content: '';
-        position: absolute;
-        top: -10px;
-        left: -10px;
-        right: -10px;
-        bottom: -10px;
-        background: radial-gradient(circle, rgba(147, 197, 253, 0.3) 0%, transparent 70%);
-        border-radius: 50%;
-        animation: starryPulse 3s ease-in-out infinite;
-        z-index: -1;
-    }
-
-    @keyframes starryPulse {
-        0%, 100% {
-            transform: scale(1);
-            opacity: 0.6;
-        }
-        50% {
-            transform: scale(1.1);
-            opacity: 0.8;
-        }
-    }
-
-    body.theme-starry .mdui-img-circle:hover {
-        transform: scale(1.05) rotate(5deg);
-        border-color: rgba(147, 197, 253, 0.6);
-        box-shadow:
-            0 0 40px rgba(147, 197, 253, 0.6),
-            0 0 80px rgba(147, 51, 234, 0.3),
-            0 12px 40px rgba(0, 0, 0, 0.4);
-    }
-
-    /* 标题 - 星光渐变文字 */
-    body.theme-starry h1 {
-        font-size: 32px;
-        font-weight: 700;
-        text-align: center;
-        margin: 0 0 40px 0;
-        position: relative;
-        background: linear-gradient(135deg, #e0e6ff 0%, #c7d2fe 25%, #a5b4fc 50%, #818cf8 75%, #6366f1 100%);
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-size: 200% 200%;
-        animation: starryTextShimmer 4s ease-in-out infinite;
-        text-shadow: 0 0 20px rgba(147, 197, 253, 0.5);
-        letter-spacing: -0.5px;
-    }
-
-    @keyframes starryTextShimmer {
-        0%, 100% {
-            background-position: 0% 50%;
-            filter: brightness(1);
-        }
-        50% {
-            background-position: 100% 50%;
-            filter: brightness(1.2);
-        }
-    }
-
-    body.theme-starry h1::after {
-        content: '';
-        position: absolute;
-        bottom: -16px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 80px;
-        height: 3px;
-        background: linear-gradient(90deg, transparent, #a5b4fc, #818cf8, transparent);
-        border-radius: 2px;
-        animation: starryGlowLine 3s ease-in-out infinite;
-    }
-
-    @keyframes starryGlowLine {
-        0%, 100% {
-            opacity: 0.6;
-            transform: translateX(-50%) scaleX(1);
-        }
-        50% {
-            opacity: 1;
-            transform: translateX(-50%) scaleX(1.2);
-        }
-    }
-
-    /* 正文 - 梦幻色彩 */
-    body.theme-starry p {
-        color: #cbd5e1;
-        font-size: 16px;
-        line-height: 1.7;
-        margin-bottom: 20px;
-        font-weight: 400;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    }
-
-    body.theme-starry strong {
-        color: #e0e6ff;
-        font-weight: 600;
-        background: linear-gradient(135deg, rgba(147, 197, 253, 0.2), rgba(168, 85, 247, 0.2));
-        padding: 2px 6px;
-        border-radius: 6px;
-        border: 1px solid rgba(147, 197, 253, 0.2);
-        text-shadow: 0 0 8px rgba(147, 197, 253, 0.5);
-    }
-
-    body.theme-starry hr {
-        border: none;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, rgba(147, 197, 253, 0.5), transparent);
-        margin: 32px 0;
-        position: relative;
-        overflow: visible;
-    }
-
-    body.theme-starry hr::before {
-        content: '✦';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: #0a0a1a;
-        color: #a5b4fc;
-        padding: 0 16px;
-        font-size: 18px;
-        animation: starrySymbolRotate 8s linear infinite;
-    }
-
-    @keyframes starrySymbolRotate {
-        0% { transform: translate(-50%, -50%) rotate(0deg); }
-        100% { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-
-    /* 按钮 - 星光交互效果 */
-    body.theme-starry .mdui-btn {
-        background: linear-gradient(135deg, #6366f1, #8b5cf6);
-        color: #ffffff;
-        border: 1px solid rgba(147, 197, 253, 0.3);
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 16px;
-        padding: 16px 24px;
-        min-height: 52px;
-        letter-spacing: 0.3px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        position: relative;
-        overflow: hidden;
-        box-shadow:
-            0 4px 12px rgba(99, 102, 241, 0.3),
-            0 0 0 1px rgba(147, 197, 253, 0.2);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-    }
-
-    /* 按钮内部星光流动 */
-    body.theme-starry .mdui-btn::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 1;
-    }
-
-    body.theme-starry .mdui-btn:hover {
-        background: linear-gradient(135deg, #4f46e5, #7c3aed);
-        transform: translateY(-2px);
-        box-shadow:
-            0 8px 25px rgba(99, 102, 241, 0.5),
-            0 0 0 2px rgba(147, 197, 253, 0.4),
-            0 0 20px rgba(147, 197, 253, 0.3);
-        border-color: rgba(147, 197, 253, 0.6);
-    }
-
-    body.theme-starry .mdui-btn:hover::before {
-        left: 100%;
-    }
-
-    body.theme-starry .mdui-btn:active {
-        transform: translateY(-1px);
-        box-shadow:
-            0 4px 12px rgba(99, 102, 241, 0.4),
-            0 0 0 1px rgba(147, 197, 253, 0.3);
-    }
-
-    /* 主操作按钮 - 特殊星光效果 */
-    body.theme-starry .mdui-btn.mdui-color-theme-accent {
-        background: linear-gradient(135deg, #ec4899, #f43f5e);
-        box-shadow:
-            0 4px 12px rgba(236, 72, 153, 0.3),
-            0 0 0 1px rgba(251, 207, 232, 0.3);
-    }
-
-    body.theme-starry .mdui-btn.mdui-color-theme-accent:hover {
-        background: linear-gradient(135deg, #db2777, #e11d48);
-        box-shadow:
-            0 8px 25px rgba(236, 72, 153, 0.5),
-            0 0 0 2px rgba(251, 207, 232, 0.5),
-            0 0 20px rgba(251, 207, 232, 0.4);
-    }
-
-    /* 次要按钮 */
-    body.theme-starry .mdui-btn.mdui-color-red {
-        background: linear-gradient(135deg, #64748b, #475569);
-        box-shadow:
-            0 4px 12px rgba(100, 116, 139, 0.3),
-            0 0 0 1px rgba(148, 163, 184, 0.3);
-    }
-
-    body.theme-starry .mdui-btn.mdui-color-red:hover {
-        background: linear-gradient(135deg, #475569, #334155);
-        box-shadow:
-            0 8px 25px rgba(100, 116, 139, 0.5),
-            0 0 0 2px rgba(148, 163, 184, 0.5);
-    }
-
-    /* 输入框 - 星空边框效果 */
-    body.theme-starry .mdui-textfield {
-        margin: 32px 0;
-        position: relative;
-    }
-
-    body.theme-starry .mdui-textfield-input {
-        background: rgba(15, 23, 42, 0.7);
-        border: 2px solid rgba(147, 197, 253, 0.2);
-        border-radius: 16px;
-        color: #e0e6ff;
-        font-size: 16px;
-        padding: 18px 24px;
-        height: 56px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        font-weight: 500;
-        backdrop-filter: blur(10px);
-        box-shadow:
-            inset 0 2px 4px rgba(0, 0, 0, 0.2),
-            0 0 0 1px rgba(147, 197, 253, 0.1);
-    }
-
-    body.theme-starry .mdui-textfield-input:focus {
-        background: rgba(15, 23, 42, 0.9);
-        border-color: rgba(147, 197, 253, 0.6);
-        outline: none;
-        box-shadow:
-            0 0 0 4px rgba(147, 197, 253, 0.2),
-            inset 0 2px 4px rgba(0, 0, 0, 0.2),
-            0 0 20px rgba(147, 197, 253, 0.3);
-        transform: translateY(-2px);
-    }
-
-    body.theme-starry .mdui-textfield-input::placeholder {
-        color: #94a3b8;
-        font-weight: 400;
-        transition: all 0.3s ease;
-    }
-
-    body.theme-starry .mdui-textfield-input:focus::placeholder {
-        color: #64748b;
-        opacity: 0.8;
-    }
-
-    /* 解析结果区域 - 星空展示效果 */
-    body.theme-starry .down {
-        margin-top: 48px;
-        padding: 32px;
-        background: rgba(15, 23, 42, 0.6);
-        border: 1px solid rgba(147, 197, 253, 0.2);
-        border-radius: 20px;
-        backdrop-filter: blur(15px);
-        box-shadow:
-            0 8px 32px rgba(0, 0, 0, 0.3),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        position: relative;
-        overflow: hidden;
-    }
-
-    /* 星空装饰背景 */
-    body.theme-starry .down::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-image:
-            radial-gradient(circle at 10% 10%, rgba(147, 197, 253, 0.05) 2px, transparent 2px),
-            radial-gradient(circle at 90% 90%, rgba(168, 85, 247, 0.04) 3px, transparent 3px),
-            radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.03) 2px, transparent 2px);
-        background-size: 80px 80px, 120px 120px, 100px 100px;
-        animation: starryBackgroundFloat 20s linear infinite;
-        pointer-events: none;
-        z-index: -1;
-    }
-
-    @keyframes starryBackgroundFloat {
-        0% { transform: rotate(0deg) translateY(0px); }
-        100% { transform: rotate(360deg) translateY(-10px); }
-    }
-
-    body.theme-starry .down h4 {
-        font-size: 24px;
-        font-weight: 700;
-        color: #e0e6ff;
-        text-align: center;
-        margin: 0 0 32px 0;
-        position: relative;
-        background: linear-gradient(135deg, #e0e6ff, #c7d2fe, #a5b4fc);
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-size: 200% 200%;
-        animation: starryTextShimmer 5s ease-in-out infinite;
-        text-shadow: 0 0 15px rgba(147, 197, 253, 0.5);
-    }
-
-    body.theme-starry .down h4::after {
-        content: '';
-        position: absolute;
-        bottom: -12px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 60px;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, #a5b4fc, transparent);
-        border-radius: 1px;
-        animation: starryGlowLine 4s ease-in-out infinite;
-    }
-
-    /* 图片展示区域 - 悬浮效果 */
-    body.theme-starry .down div[style*="display: inline-block"] {
-        background: rgba(15, 23, 42, 0.5);
-        border: 1px solid rgba(147, 197, 253, 0.2);
-        border-radius: 16px;
-        padding: 20px;
-        margin: 16px;
-        text-align: center;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        backdrop-filter: blur(10px);
-        box-shadow:
-            0 4px 15px rgba(0, 0, 0, 0.2),
-            0 0 0 1px rgba(147, 197, 253, 0.1);
-        position: relative;
-        overflow: hidden;
-    }
-
-    body.theme-starry .down div[style*="display: inline-block"]::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, #a5b4fc, transparent);
-        transform: translateX(-100%);
-        transition: transform 0.6s ease;
-    }
-
-    body.theme-starry .down div[style*="display: inline-block"]:hover {
-        background: rgba(15, 23, 42, 0.8);
-        border-color: rgba(147, 197, 253, 0.5);
-        transform: translateY(-6px) scale(1.02);
-        box-shadow:
-            0 12px 30px rgba(0, 0, 0, 0.4),
-            0 0 0 2px rgba(147, 197, 253, 0.3),
-            0 0 25px rgba(147, 197, 253, 0.2);
-    }
-
-    body.theme-starry .down div[style*="display: inline-block"]:hover::before {
-        transform: translateX(100%);
-    }
-
-    body.theme-starry .down img {
-        border-radius: 12px;
-        border: 2px solid rgba(147, 197, 253, 0.2);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        transition: all 0.4s ease;
-        max-width: 200px;
-        height: auto;
-    }
-
-    body.theme-starry .down img:hover {
-        transform: scale(1.05);
-        border-color: rgba(147, 197, 253, 0.6);
-        box-shadow:
-            0 8px 20px rgba(0, 0, 0, 0.4),
-            0 0 20px rgba(147, 197, 253, 0.3);
-    }
-
-    body.theme-starry .down .mdui-btn {
-        margin: 10px;
-        min-width: 120px;
-        max-width: 160px;
-        font-size: 15px;
-        padding: 14px 24px;
-        min-height: 48px;
-        border-radius: 12px;
-        backdrop-filter: blur(5px);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-    }
-
-    /* 错误提示优化 */
-    body.theme-starry .mdui-snackbar {
-        background: rgba(15, 23, 42, 0.95) !important;
-        color: #e0e6ff !important;
-        border: 1px solid rgba(147, 197, 253, 0.3) !important;
-        backdrop-filter: blur(15px) !important;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
-        border-radius: 12px !important;
-    }
-
-    /* 主题选择器适配 */
-    body.theme-starry .theme-selector {
-        background: rgba(15, 23, 42, 0.95);
-        border: 1px solid rgba(147, 197, 253, 0.3);
-        color: #e0e6ff;
-        backdrop-filter: blur(15px);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    }
-
-    body.theme-starry .theme-option:hover {
-        background: rgba(147, 197, 253, 0.15);
-    }
-
-    body.theme-starry .theme-option.active {
-        background: rgba(147, 197, 253, 0.25);
-        border-color: rgba(147, 197, 253, 0.4);
-    }
-
-    /* 加载状态 - 星星闪烁 */
-    body.theme-starry .loading {
-        color: #a5b4fc;
-        position: relative;
-        display: inline-block;
-    }
-
-    body.theme-starry .loading::after {
-        content: '✦';
-        animation: starryLoading 1.5s ease-in-out infinite;
-        margin-left: 4px;
-        display: inline-block;
-    }
-
-    @keyframes starryLoading {
-        0%, 100% {
-            opacity: 0.3;
-            transform: rotate(0deg) scale(1);
-        }
-        50% {
-            opacity: 1;
-            transform: rotate(180deg) scale(1.2);
-        }
-    }
-
-    /* 响应式设计 */
-    @media (max-width: 768px) {
-        body.theme-starry .mdui-container {
-            margin: 20px 16px;
-            padding: 0;
-        }
-
-        body.theme-starry .mdui-card {
-            padding: 32px 24px;
-            border-radius: 16px;
-        }
-
-        body.theme-starry h1 {
-            font-size: 28px;
-            margin-bottom: 32px;
-        }
-
-        body.theme-starry .mdui-btn {
-            width: 100%;
-            margin: 8px 0;
-            font-size: 16px;
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: transparent;
+            border: none;
+            border-radius: 50%;
+            padding: 1px;
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            box-shadow: none;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            background: transparent;
+        }
+
+        .theme-toggle:focus {
+            outline: none;
+            background: transparent;
+        }
+
+        .theme-toggle svg {
+            width: 24px;
+            height: 24px;
+            color: var(--text-primary);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light), #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .description {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 18px;
+            line-height: 1.7;
+        }
+
+        .platforms-container {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+
+        .platforms-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .platforms-list {
+            text-align: center;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .url-input {
+            flex: 1;
+            padding: 16px 20px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .url-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .btn {
+            padding: 16px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .tip-box {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 4px solid var(--warning);
+        }
+
+        .tip-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            font-size: 18px;
+        }
+
+        .tip-content {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .tip-content ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+
+        .tip-content li {
+            margin-bottom: 8px;
+        }
+
+        .result-section {
+            display: none;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border);
+        }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
             text-align: center;
         }
 
-        body.theme-starry .mdui-textfield-input {
-            font-size: 16px; /* 防止iOS缩放 */
+        .result-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
         }
 
-        body.theme-starry .down {
-            padding: 24px 16px;
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
         }
 
-        body.theme-starry .down div[style*="display: inline-block"] {
+        .gallery-item {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px var(--shadow-lg);
+        }
+
+        .gallery-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
             display: block;
-            margin: 16px auto;
-            max-width: 280px;
         }
 
-        body.theme-starry .down img {
-            width: 100% !important;
-            max-width: 240px;
-        }
-    }
-
-    /* 暗色模式适配 */
-    @media (prefers-color-scheme: dark) {
-        body.theme-starry {
-            background: #050510;
-        }
-    }
-
-    /* 减少动画效果适配 */
-    @media (prefers-reduced-motion: reduce) {
-        body.theme-starry *,
-        body.theme-starry *::before,
-        body.theme-starry *::after {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-        }
-    }
-
-    /* Zaha Hadid 流动几何主题 */
-    body.theme-hadid {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-        color: #ffffff;
-        font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-    }
-
-    body.theme-hadid::before {
-        background:
-            linear-gradient(45deg, transparent 30%, rgba(102, 126, 234, 0.15) 50%, transparent 70%),
-            linear-gradient(-45deg, transparent 30%, rgba(118, 75, 162, 0.1) 50%, transparent 70%),
-            radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.12) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.08) 0%, transparent 50%);
-        background-size: 300% 300%, 200% 200%, 150% 150%, 100% 100%;
-        animation: hadidFlow 15s ease-in-out infinite;
-    }
-
-    @keyframes hadidFlow {
-        0% { background-position: 0% 0%, 100% 100%, 20% 80%, 80% 20%; }
-        25% { background-position: 100% 0%, 0% 100%, 80% 20%, 20% 80%; }
-        50% { background-position: 100% 100%, 0% 0%, 50% 50%, 50% 50%; }
-        75% { background-position: 0% 100%, 100% 0%, 80% 80%, 20% 20%; }
-        100% { background-position: 0% 0%, 100% 100%, 20% 80%, 80% 20%; }
-    }
-
-    body.theme-hadid .mdui-card {
-        background: rgba(26, 26, 46, 0.85);
-        backdrop-filter: blur(15px);
-        border: 2px solid rgba(102, 126, 234, 0.3);
-        border-radius: 0 15px 15px 0;
-        clip-path: polygon(0 0, 100% 0, 100% 95%, 95% 100%, 0 100%);
-        opacity: 1;
-        box-shadow:
-            0 8px 32px rgba(0, 0, 0, 0.4),
-            0 0 0 1px rgba(102, 126, 234, 0.2),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        position: relative;
-        overflow: hidden;
-        padding: 1.5em;
-    }
-
-    /* Hadid主题紧凑布局 - 添加容器样式 */
-    body.theme-hadid .mdui-container {
-        max-width: 900px;
-        margin: 2em auto;
-        padding: 0 20px;
-    }
-
-    body.theme-hadid .mdui-card::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: linear-gradient(
-            45deg,
-            transparent 30%,
-            rgba(102, 126, 234, 0.03) 50%,
-            transparent 70%
-        );
-        animation: hadidCardFlow 20s linear infinite;
-        pointer-events: none;
-    }
-
-    @keyframes hadidCardFlow {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    body.theme-hadid .mdui-btn {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        border: 2px solid rgba(102, 126, 234, 0.5);
-        border-radius: 0 25px 25px 0;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        clip-path: polygon(5% 0%, 100% 0%, 95% 100%, 0% 100%);
-        transition: all 0.3s ease;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-    }
-
-    body.theme-hadid .mdui-btn::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        transition: left 0.5s ease;
-    }
-
-    body.theme-hadid .mdui-btn:hover {
-        transform: translateY(-2px) translateX(2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-        background: linear-gradient(135deg, #764ba2, #667eea);
-        border-color: rgba(118, 75, 162, 0.7);
-    }
-
-    body.theme-hadid .mdui-btn:hover::before {
-        left: 100%;
-    }
-
-    body.theme-hadid .mdui-textfield-input {
-        background: rgba(26, 26, 46, 0.7);
-        border: 2px solid rgba(102, 126, 234, 0.4);
-        border-radius: 0 20px 20px 0;
-        color: #ffffff;
-        backdrop-filter: blur(10px);
-        font-weight: 500;
-        transition: all 0.3s ease;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
-    }
-
-    body.theme-hadid .mdui-textfield-input:focus {
-        background: rgba(26, 26, 46, 0.9);
-        border-color: rgba(102, 126, 234, 0.8);
-        box-shadow:
-            0 0 0 3px rgba(102, 126, 234, 0.2),
-            inset 0 2px 4px rgba(0,0,0,0.3);
-    }
-
-    body.theme-hadid .mdui-textfield-input::placeholder {
-        color: rgba(255, 255, 255, 0.6);
-        font-style: italic;
-    }
-
-    body.theme-hadid h1, body.theme-hadid h2, body.theme-hadid h3 {
-        font-weight: 700;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        color: #ffffff;
-        text-shadow:
-            0 2px 4px rgba(0,0,0,0.5),
-            0 0 20px rgba(102, 126, 234, 0.3);
-        margin-bottom: 1em;
-    }
-
-    body.theme-hadid h1 {
-        font-size: 2.2rem;
-        background: linear-gradient(45deg, #ffffff, #667eea, #764ba2);
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-size: 200% 200%;
-        animation: hadidTextGradient 8s ease-in-out infinite;
-    }
-
-    @keyframes hadidTextGradient {
-        0%, 100% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-    }
-
-    body.theme-hadid p {
-        color: rgba(255, 255, 255, 0.9);
-        line-height: 1.5;
-        font-weight: 400;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-        margin-bottom: 1em;
-    }
-
-    body.theme-hadid strong {
-        color: #667eea;
-        font-weight: 700;
-        text-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
-    }
-
-    body.theme-hadid .mdui-img-circle {
-        border: 3px solid rgba(102, 126, 234, 0.5);
-        box-shadow:
-            0 0 30px rgba(102, 126, 234, 0.4),
-            0 8px 16px rgba(0,0,0,0.3);
-    }
-
-    body.theme-hadid .down {
-        margin-top: 1.5em;
-        padding-top: 1.5em;
-        border-top: 2px solid rgba(102, 126, 234, 0.3);
-    }
-
-    body.theme-hadid .down .mdui-btn {
-        margin: 0.5em;
-        min-width: 140px;
-        position: relative;
-    }
-
-    body.theme-hadid .down .mdui-btn::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 0;
-        height: 0;
-        border-style: solid;
-        border-width: 0 15px 15px 0;
-        border-color: transparent #667eea transparent transparent;
-        filter: drop-shadow(-2px 2px 3px rgba(0,0,0,0.3));
-    }
-
-    /* 解析结果区域优化 - Zaha Hadid主题 */
-    body.theme-hadid .down {
-        background: rgba(26, 26, 46, 0.6);
-        border: 1px solid rgba(102, 126, 234, 0.3);
-        border-radius: 12px;
-        padding: 1.2em;
-        margin-top: 1.5em;
-        backdrop-filter: blur(10px);
-        box-shadow:
-            0 8px 32px rgba(0, 0, 0, 0.3),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    }
-
-    body.theme-hadid .down h4 {
-        color: #ffffff;
-        font-weight: 700;
-        font-size: 1.1rem;
-        text-shadow:
-            0 2px 4px rgba(0,0,0,0.5),
-            0 0 15px rgba(102, 126, 234, 0.4);
-        margin-bottom: 1em;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        background: linear-gradient(45deg, #ffffff, #667eea);
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-size: 150% 150%;
-        animation: hadidTextGradient 6s ease-in-out infinite;
-    }
-
-    body.theme-hadid .down .mdui-btn {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8));
-        color: #ffffff;
-        border: 2px solid rgba(102, 126, 234, 0.6);
-        font-weight: 600;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.4);
-        position: relative;
-        backdrop-filter: blur(5px);
-        transition: all 0.3s ease;
-    }
-
-    body.theme-hadid .down .mdui-btn:hover {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.95), rgba(118, 75, 162, 0.95));
-        border-color: rgba(102, 126, 234, 0.9);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-    }
-
-    /* 图片展示区域优化 */
-    body.theme-hadid .down div[style*="display: inline-block"] {
-        background: rgba(26, 26, 46, 0.4);
-        border: 1px solid rgba(102, 126, 234, 0.4);
-        border-radius: 8px;
-        padding: 0.8em;
-        margin: 0.8em;
-        transition: all 0.3s ease;
-        backdrop-filter: blur(5px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
-
-    body.theme-hadid .down div[style*="display: inline-block"]:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-        border-color: rgba(102, 126, 234, 0.7);
-    }
-
-    body.theme-hadid .down img {
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        transition: all 0.3s ease;
-        border: 2px solid rgba(102, 126, 234, 0.3);
-    }
-
-    body.theme-hadid .down img:hover {
-        transform: scale(1.02);
-        border-color: rgba(102, 126, 234, 0.6);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-    }
-
-    /* 图集标题特殊样式 */
-    body.theme-hadid .down h4:first-of-type {
-        position: relative;
-        padding-left: 20px;
-    }
-
-    body.theme-hadid .down h4:first-of-type::before {
-        content: '◆';
-        position: absolute;
-        left: 0;
-        color: #667eea;
-        font-size: 1.2em;
-        animation: hadidPulse 2s ease-in-out infinite;
-    }
-
-    @keyframes hadidPulse {
-        0%, 100% { opacity: 0.6; transform: scale(1); }
-        50% { opacity: 1; transform: scale(1.1); }
-    }
-
-    /* 错误提示优化 */
-    body.theme-hadid .mdui-snackbar {
-        background: rgba(26, 26, 46, 0.95) !important;
-        color: white !important;
-        border: 1px solid rgba(102, 126, 234, 0.5) !important;
-        backdrop-filter: blur(10px) !important;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
-    }
-
-    /* 主题选择器适配 */
-    body.theme-hadid .theme-selector {
-        background: rgba(26, 26, 46, 0.95);
-        border: 1px solid rgba(102, 126, 234, 0.3);
-        color: white;
-        backdrop-filter: blur(10px);
-    }
-
-    body.theme-hadid .theme-option:hover {
-        background: rgba(102, 126, 234, 0.2);
-    }
-
-    body.theme-hadid .theme-option.active {
-        background: rgba(102, 126, 234, 0.3);
-    }
-
-    /* 通用按钮样式 - 修复经典MDUI主题下解析按钮样式问题 */
-    .mdui-btn.mdui-color-theme-accent {
-        background: #ff4081 !important;
-        color: #ffffff !important;
-        border: none;
-        border-radius: 4px;
-        text-transform: none;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-
-    .mdui-btn.mdui-color-theme-accent:hover {
-        background: #f50057 !important;
-        box-shadow: 0 4px 8px rgba(255, 64, 129, 0.3);
-    }
-
-    .mdui-btn.mdui-color-red {
-        background: #f44336 !important;
-        color: #ffffff !important;
-        border: none;
-        border-radius: 4px;
-        text-transform: none;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-
-    .mdui-btn.mdui-color-red:hover {
-        background: #d32f2f !important;
-        box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
-    }
-
-    /* 基础样式重置 */
-    body {
-        transition: all 0.5s ease;
-    }
-
-    body::before {
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        opacity: 0.3;
-        z-index: -1;
-        content: "";
-        position: fixed;
-    }
-
-    .mdui-textfield-input {
-        float: left;
-        width: 75%;
-        text-transform: none;
-        transition: all 0.3s ease;
-    }
-
-    .mdui-btn {
-        width: 12.5%;
-        transition: all 0.3s ease;
-    }
-
-    .mdui-container {
-        max-width: 900px;
-        margin-top: 6em;
-        margin-bottom: 4em;
-        transition: all 0.3s ease;
-    }
-
-    .mdui-btn, .mdui-fab {
-        min-width: 0px;
-    }
-
-    .mdui-card {
-        padding: 2em;
-        transition: all 0.5s ease;
-    }
-
-    .down .mdui-btn {
-        width: auto;
-        margin-left: 1.5em;
-        margin-bottom: 0.5em;
-    }
-
-    p {
-        opacity: 0.8;
-    }
-
-    .mdui-card-content {
-        padding: 16px 0 0 0;
-    }
-
-    .mdui-textfield.mdui-textfield-floating-label {
-        display: flex;
-        align-items: center;
-    }
-
-    .mdui-textfield-input, .mdui-btn {
-        margin-right: 8px;
-    }
-
-    /* 移动端适配 */
-    @media (max-width: 600px) {
-        .theme-selector {
-            top: 10px;
-            right: 10px;
-            min-width: 160px;
-            padding: 10px;
+        .gallery-actions {
+            padding: 15px;
+            display: flex;
+            justify-content: center;
         }
 
-        .mdui-container {
-            margin-top: 4em;
-            margin-bottom: 2em;
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
         }
 
-        .mdui-card {
-            padding: 1em;
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
         }
 
-        .mdui-textfield-input {
-            width: 100%;
-            float: none;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        .mdui-btn {
-            width: 100%;
-            margin-top: 0.5em;
-        }
-
-        .down .mdui-btn {
-            width: 100%;
-            margin-left: 0;
-        }
-
-        .mdui-textfield.mdui-textfield-floating-label {
-            flex-direction: column;
-        }
-
-        .mdui-textfield-input, .mdui-btn {
-            margin-right: 0;
-        }
-    }
-
-    @media (max-width: 400px) {
-        .theme-selector {
-            position: relative;
-            top: auto;
-            right: auto;
+        .error-message {
+            display: none;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+            padding: 16px;
+            border-radius: 12px;
             margin-bottom: 20px;
+            text-align: center;
         }
-    }
 
-    /* 主题切换动画 */
-    body {
-        transition: background 0.8s ease, color 0.8s ease;
-    }
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .card {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 28px;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .theme-toggle {
+                top: 15px;
+                right: 15px;
+            }
+            
+            .result-actions {
+                flex-direction: column;
+            }
+            
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
 
-    .mdui-card, .mdui-btn, .mdui-textfield-input {
-        transition: all 0.5s ease;
-    }
-</style>
-
-<!-- 主题选择器 -->
-<div class="theme-selector" id="themeSelector">
-    <div class="theme-toggle" onclick="toggleThemeSelector()">
-        <span>🎨 主题</span>
-        <span id="toggleIcon">▼</span>
-    </div>
-    <div class="theme-options">
-        <div class="theme-option active" data-theme="original" onclick="setTheme('original')">
-            <div class="theme-preview" style="background: linear-gradient(135deg, #CE9FFC, #7367F0);"></div>
-            <div class="theme-name">经典MDUI</div>
-            <div class="theme-designer">Original</div>
-        </div>
-        <div class="theme-option" data-theme="rams" onclick="setTheme('rams')">
-            <div class="theme-preview" style="background: #2c3e50;"></div>
-            <div class="theme-name">极简功能</div>
-            <div class="theme-designer">Dieter Rams</div>
-        </div>
-        <div class="theme-option" data-theme="vignelli" onclick="setTheme('vignelli')">
-            <div class="theme-preview" style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4);"></div>
-            <div class="theme-name">现代网格</div>
-            <div class="theme-designer">Massimo Vignelli</div>
-        </div>
-        <div class="theme-option" data-theme="kusama" onclick="setTheme('kusama')">
-            <div class="theme-preview" style="background: #d81b60; border-radius: 50%;"></div>
-            <div class="theme-name">波点艺术</div>
-            <div class="theme-designer">Yayoi Kusama</div>
-        </div>
-        <div class="theme-option" data-theme="hadid" onclick="setTheme('hadid')">
-            <div class="theme-preview" style="background: linear-gradient(135deg, #667eea, #764ba2);"></div>
-            <div class="theme-name">流动几何</div>
-            <div class="theme-designer">Zaha Hadid</div>
-        </div>
-        <div class="theme-option" data-theme="starry" onclick="setTheme('starry')">
-            <div class="theme-preview" style="background: linear-gradient(135deg, #1a1a2e, #6366f1, #8b5cf6); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: 20%; left: 30%; width: 2px; height: 2px; background: white; border-radius: 50%; box-shadow: 0 0 2px white;"></div>
-                <div style="position: absolute; top: 60%; left: 70%; width: 1px; height: 1px; background: #a5b4fc; border-radius: 50%; box-shadow: 0 0 1px #a5b4fc;"></div>
-                <div style="position: absolute; top: 40%; left: 50%; width: 1px; height: 1px; background: white; border-radius: 50%;"></div>
+        @media (max-width: 480px) {
+            .card {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .platforms-list {
+                font-size: 14px;
+            }
+            
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <div class="container">
+        <div class="card">
+            <div class="theme-toggle" id="themeToggle">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>
+                </svg>
             </div>
-            <div class="theme-name">梦幻星空</div>
-            <div class="theme-designer">Kusama & Maeda</div>
-        </div>
-    </div>
-</div>
-
-<main class="mdui-container">
-    <div class="mdui-card">
-        <img class="mdui-img-circle mdui-center" style="width: 150px;" src="https://cdn.jsdelivr.net/gh/5ime/img/avatar.jpg"/>
-        <h1 class='mdui-text-center'>在线短视频去水印解析</h1>
-        <div class="mdui-typo">
-            <p><strong>目前支持: </strong>抖音/皮皮虾/火山/微视/最右/快手/全民小视频/皮皮搞笑/梨视频/西瓜/微博/虎牙/绿洲/好看/逗拍/美拍/新片场/A站/全民K歌/6间房</p>
-            <p>
-                <strong>温馨提示: </strong><br/>
-                1. 粘贴视频地址时<u>无需删除文案</u><small> 但如果视频链接正确但解析失败请删掉文案后重试</small><br/>
-                2. 点击下载视频跳转时, 可能会被对应网站识别, 报 <u>403 Forbidden</u>, 可以在 下载视频 按钮, 右键复制链接地址, 新开浏览器标签页打开即可
-            </p>
-            <hr/>
-        </div>
-        <div class="mdui-card-content mdui-typo">
-            <div class="mdui-textfield mdui-textfield-floating-label">
-                <input class="mdui-textfield-input" type="text" id="url" placeholder="请粘贴视频分享地址" required/>
-                <div class="mdui-textfield-error">
-                    需要解析的视频地址不能为空
+            
+            <div class="header">
+                <h1>在线短视频去水印解析</h1>
+                <p class="description">轻松解析并下载抖音、快手、微博等平台的短视频，去除水印，保留原始画质</p>
+                
+                <div class="platforms-container">
+                    <div class="platforms-title">目前支持的平台</div>
+                    <div class="platforms-list">
+                        抖音 / 皮皮虾 / 火山 / 微视 / 最右 / 快手 / 全民小视频 / 皮皮搞笑 / 梨视频 / 西瓜 / 微博 / 虎牙 / 绿洲 / 好看 / 逗拍 / 美拍 / 新片场 / A站 / 全民K歌 / 6间房
+                    </div>
                 </div>
-                <!-- 解析按钮 -->
-                <button class="mdui-btn mdui-color-theme-accent mdui-ripple" onclick="setValue()"><span>解析</span></button>
-                <!-- 新增清空按钮 -->
-                <button class="mdui-btn mdui-color-red mdui-ripple" onclick="clearInput()"><span>清空</span></button>
+            </div>
+
+            <div class="input-group">
+                <input type="text" class="url-input" id="urlInput" placeholder="请粘贴视频分享地址">
+                <button class="btn btn-primary" id="parseBtn">
+                    <span>解析视频</span>
+                </button>
+                <button class="btn btn-secondary" id="clearBtn">
+                    <span>清空</span>
+                </button>
+            </div>
+
+            <div class="tip-box">
+                <div class="tip-title">使用提示</div>
+                <div class="tip-content">
+                    <ul>
+                        <li>粘贴视频地址时<strong>无需删除文案</strong>，但如果视频链接正确但解析失败请删掉文案后重试</li>
+                        <li>点击下载视频跳转时，可能会被对应网站识别报<strong>403 Forbidden</strong>，可以在下载视频按钮上右键复制链接地址，新开浏览器标签页打开即可</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+                <p>正在解析视频，请稍候...</p>
+            </div>
+
+            <div class="result-section" id="resultSection">
+                <h3 class="result-title" id="resultTitle"></h3>
+                <div class="result-actions" id="resultActions"></div>
+                <div class="gallery" id="gallery"></div>
             </div>
         </div>
-        <div class="down mdui-text-center"></div>
     </div>
-</main>
 
-<script>
-// 主题管理
-let currentTheme = localStorage.getItem('selectedTheme') || 'original';
-
-function toggleThemeSelector() {
-    const selector = document.getElementById('themeSelector');
-    const icon = document.getElementById('toggleIcon');
-    selector.classList.toggle('collapsed');
-    icon.textContent = selector.classList.contains('collapsed') ? '▶' : '▼';
-}
-
-function setTheme(themeName) {
-    // 移除所有主题类
-    document.body.className = '';
-
-    // 添加新主题类
-    if (themeName !== 'original') {
-        document.body.classList.add(`theme-${themeName}`);
-    }
-
-    // 更新主题选择器状态
-    document.querySelectorAll('.theme-option').forEach(option => {
-        option.classList.remove('active');
-    });
-    document.querySelector(`[data-theme="${themeName}"]`).classList.add('active');
-
-    // 保存主题选择
-    currentTheme = themeName;
-    localStorage.setItem('selectedTheme', themeName);
-
-    // 显示主题切换提示
-    showThemeNotification(themeName);
-}
-
-function showThemeNotification(themeName) {
-    const themeNames = {
-        'original': '经典MDUI',
-        'rams': 'Dieter Rams 极简功能',
-        'vignelli': 'Massimo Vignelli 现代网格',
-        'kusama': 'Yayoi Kusama 波点艺术',
-        'hadid': 'Zaha Hadid 流动几何',
-        'starry': '梦幻星空'
-    };
-
-    const message = `已切换到 ${themeNames[themeName]} 主题`;
-
-    // 创建临时提示元素
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(0,0,0,0.8);
-        color: white;
-        padding: 12px 24px;
-        border-radius: 25px;
-        z-index: 10000;
-        font-size: 14px;
-        animation: slideDown 0.3s ease;
-    `;
-    notification.textContent = message;
-
-    document.body.appendChild(notification);
-
-    // 3秒后自动消失
-    setTimeout(() => {
-        notification.style.animation = 'slideUp 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
-}
-
-// 原有的解析功能
-function setValue() {
-    var data = document.getElementById("url").value;
-    let regex = /http[s]?:\/\/[\w.-]+[\w\/-]*[\w.-]*\??[\w=&:\-\+\%]*[/]*/;
-    var v = data.match(regex)[0];
-    console.log(v);
-
-    var xmlhttp;
-    if (window.XMLHttpRequest) {
-        xmlhttp = new XMLHttpRequest();
-    } else { // code for IE6, IE5
-        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-    }
-
-    xmlhttp.open("GET", "/video/share/url/parse?url=" + encodeURIComponent(v), false);
-    xmlhttp.send();
-    var jsonObj = JSON.parse(xmlhttp.responseText);
-    console.log(jsonObj);
-
-    if (jsonObj.code == 200) {
-        mdui.snackbar({
-            message: '解析成功'
+    <script>
+        // 主题切换功能
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('svg');
+        
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            
+            if (isDark) {
+                document.body.setAttribute('data-theme', 'light');
+                themeIcon.innerHTML = '<path d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/>';
+            } else {
+                document.body.setAttribute('data-theme', 'dark');
+                themeIcon.innerHTML = '<path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>';
+            }
         });
 
-        let successHtml = '<h4>' + jsonObj.data.title + ' </h4>';
-        successHtml += '<a class="mdui-btn mdui-btn-raised" href="' + jsonObj.data.cover_url + '" target="_blank" download="video" referrerpolicy="no-referrer"><span>下载封面</span></a>';
+        // 视频解析功能
+        const urlInput = document.getElementById('urlInput');
+        const parseBtn = document.getElementById('parseBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const errorMessage = document.getElementById('errorMessage');
+        const resultSection = document.getElementById('resultSection');
+        const resultTitle = document.getElementById('resultTitle');
+        const resultActions = document.getElementById('resultActions');
+        const gallery = document.getElementById('gallery');
 
-        // 如果video_url不为空, 则显示下载视频按钮
-        if (jsonObj.data.video_url != "") {
-            successHtml += '<a class="mdui-btn mdui-btn-raised" href="' + jsonObj.data.video_url + '" target="_blank" download="video" referrerpolicy="no-referrer"><span>下载视频</span></a>';
+        // 解析视频
+        parseBtn.addEventListener('click', () => {
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                showError('请输入视频链接');
+                return;
+            }
+            
+            // 验证URL格式
+            const regex = /http[s]?:\/\/[\w.-]+[\w\/-]*[\w.-]*\??[\w=&:\-\+\%]*[/]*/;
+            const match = url.match(regex);
+            
+            if (!match) {
+                showError('请输入有效的视频链接');
+                return;
+            }
+            
+            // 显示加载状态
+            loadingIndicator.style.display = 'block';
+            errorMessage.style.display = 'none';
+            resultSection.style.display = 'none';
+            
+            // 实际的API调用
+            const videoUrl = match[0];
+            parseVideo(videoUrl);
+        });
+
+        // 清空输入框
+        clearBtn.addEventListener('click', () => {
+            urlInput.value = '';
+            urlInput.focus();
+        });
+
+        // 显示错误信息
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            resultSection.style.display = 'none';
+            loadingIndicator.style.display = 'none';
         }
 
-        // 如果 jsonObj.data.images 是数组， 并且长度大于0, 则img展示图片
-        if (jsonObj.data.images && jsonObj.data.images.length > 0) {
-            successHtml += "<hr/>";
-            successHtml += '<h4>图集</h4>';
-            jsonObj.data.images.forEach(function (item) {
-                successHtml += '<div style="display: inline-block; margin: 1em; text-align: center;">';
-                successHtml += '<img src="' + item.url + '" style="width: 160px; display: block; margin-bottom: 0.5em;"/>';
-                // 如果 item.live_photo_url 不为空， 显示下载按钮
-                if (item.live_photo_url) {
-                    successHtml += '<a class="mdui-btn mdui-btn-raised" href="' + item.live_photo_url + '" target="_blank" download="video" referrerpolicy="no-referrer" style="text-transform: none;"><span>下载LivePhoto</span></a>';
+        // 显示成功消息
+        function showSuccess(message) {
+            // 创建临时提示元素
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: var(--success);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 25px;
+                z-index: 10000;
+                font-size: 14px;
+                animation: slideDown 0.3s ease;
+            `;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            // 3秒后自动消失
+            setTimeout(() => {
+                notification.style.animation = 'slideUp 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // 实际的视频解析函数
+        function parseVideo(videoUrl) {
+            // 创建XMLHttpRequest对象
+            var xmlhttp;
+            if (window.XMLHttpRequest) {
+                xmlhttp = new XMLHttpRequest();
+            } else { // code for IE6, IE5
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+
+            xmlhttp.open("GET", "/video/share/url/parse?url=" + encodeURIComponent(videoUrl), false);
+            xmlhttp.send();
+            
+            // 处理响应
+            if (xmlhttp.status === 200) {
+                try {
+                    const jsonObj = JSON.parse(xmlhttp.responseText);
+                    handleResponse(jsonObj);
+                } catch (e) {
+                    showError('解析响应数据失败: ' + e.message);
                 }
-
-                successHtml += '</div>';
-            });
+            } else {
+                showError('网络请求失败，状态码: ' + xmlhttp.status);
+            }
         }
 
-        document.querySelector(".down").innerHTML = successHtml;
-    } else {
-        mdui.snackbar({
-            message: "解析失败,视频不存在或者链接不正确:<br/>" + jsonObj.msg
+        // 处理API响应
+        function handleResponse(response) {
+            loadingIndicator.style.display = 'none';
+            
+            if (response.code === 200) {
+                showSuccess('解析成功');
+                
+                // 显示结果
+                resultTitle.textContent = response.data.title;
+                
+                // 创建操作按钮
+                let actionsHtml = '';
+                actionsHtml += `<a class="btn btn-primary" href="${response.data.cover_url}" target="_blank" download="cover" referrerpolicy="no-referrer">下载封面</a>`;
+                
+                if (response.data.video_url) {
+                    actionsHtml += `<a class="btn btn-primary" href="${response.data.video_url}" target="_blank" download="video" referrerpolicy="no-referrer">下载视频</a>`;
+                }
+                
+                resultActions.innerHTML = actionsHtml;
+                
+                // 创建图集
+                if (response.data.images && response.data.images.length > 0) {
+                    let galleryHtml = '';
+                    
+                    response.data.images.forEach((item, index) => {
+                        galleryHtml += `
+                            <div class="gallery-item">
+                                <img src="${item.url}" alt="图片 ${index + 1}" class="gallery-img">
+                                <div class="gallery-actions">
+                                    ${item.live_photo_url ? 
+                                        `<a class="btn btn-secondary" href="${item.live_photo_url}" target="_blank" download="livephoto" referrerpolicy="no-referrer">下载LivePhoto</a>` : 
+                                        '<span style="color: var(--text-secondary); font-size: 14px;">静态图片</span>'
+                                    }
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    gallery.innerHTML = galleryHtml;
+                } else {
+                    gallery.innerHTML = '';
+                }
+                
+                resultSection.style.display = 'block';
+                errorMessage.style.display = 'none';
+                
+                // 滚动到结果区域
+                resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                showError(`解析失败: ${response.msg || '视频不存在或者链接不正确'}`);
+            }
+        }
+
+        // 按Enter键触发解析
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                parseBtn.click();
+            }
         });
-    }
-}
 
-// 新增清空输入框内容的函数
-function clearInput() {
-    document.getElementById("url").value = "";
-}
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideDown {
+                from { opacity: 0; transform: translate(-50%, -20px); }
+                to { opacity: 1; transform: translate(-50%, 0); }
+            }
 
-// 添加动画样式
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideDown {
-        from { opacity: 0; transform: translate(-50%, -20px); }
-        to { opacity: 1; transform: translate(-50%, 0); }
-    }
-
-    @keyframes slideUp {
-        from { opacity: 1; transform: translate(-50%, 0); }
-        to { opacity: 0; transform: translate(-50%, -20px); }
-    }
-`;
-document.head.appendChild(style);
-
-// 页面加载时应用保存的主题
-window.addEventListener('DOMContentLoaded', function() {
-    setTheme(currentTheme);
-
-    // 小屏幕下自动折叠主题选择器
-    if (window.innerWidth <= 600) {
-        document.getElementById('themeSelector').classList.add('collapsed');
-        document.getElementById('toggleIcon').textContent = '▶';
-    }
-});
-
-// 响应式处理
-window.addEventListener('resize', function() {
-    if (window.innerWidth <= 600) {
-        document.getElementById('themeSelector').classList.add('collapsed');
-        document.getElementById('toggleIcon').textContent = '▶';
-    }
-});
-</script>
-
+            @keyframes slideUp {
+                from { opacity: 1; transform: translate(-50%, 0); }
+                to { opacity: 0; transform: translate(-50%, -20px); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 </html>
