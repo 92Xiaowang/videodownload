@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>在线视频解析下载</title>
+    <title>视频解析下载</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='85'>🎬</text></svg>">
     <style>
         :root {
@@ -282,6 +282,19 @@
             transform: scale(1.03);
             box-shadow: 0 12px 25px var(--shadow-lg);
             border-color: var(--primary);
+        }
+
+        .cover-placeholder {
+            width: 300px;
+            height: 200px;
+            border-radius: 12px;
+            border: 2px dashed var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            margin: 0 auto;
         }
 
         .result-actions {
@@ -593,6 +606,28 @@
             }, 3000);
         }
 
+        // 使用双重加载策略解决图片显示问题
+        function loadImageWithFallback(url, element) {
+            // 先尝试直接加载
+            element.src = url;
+            
+            // 监听加载错误
+            element.onerror = function() {
+                // 如果直接加载失败，尝试使用CORS代理
+                console.log('直接加载失败，尝试使用CORS代理: ', url);
+                const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(url);
+                element.src = proxyUrl;
+                
+                // 如果代理也失败，显示占位符
+                element.onerror = function() {
+                    console.error('图片加载失败: ', url);
+                    element.alt = '图片加载失败';
+                    element.style.display = 'none';
+                    element.parentNode.innerHTML = '<div class="cover-placeholder">封面加载失败<br><small>可尝试下载封面查看</small></div>';
+                };
+            };
+        }
+
         // 实际的视频解析函数
         function parseVideo(videoUrl) {
             // 创建XMLHttpRequest对象
@@ -632,13 +667,17 @@
                 // 显示封面图片
                 let coverHtml = '';
                 if (response.data.cover_url && response.data.cover_url !== "") {
-                    coverHtml = '<img src="' + response.data.cover_url + '" alt="视频封面" class="cover-image" />';
+                    coverHtml = '<img src="" alt="视频封面" class="cover-image" id="coverImage" />';
+                } else {
+                    coverHtml = '<div class="cover-placeholder">无封面图片</div>';
                 }
                 coverContainer.innerHTML = coverHtml;
                 
                 // 创建操作按钮
                 let actionsHtml = '';
-                actionsHtml += '<a class="btn btn-primary" href="' + response.data.cover_url + '" target="_blank" download="cover" referrerpolicy="no-referrer"><span>下载封面</span></a>';
+                if (response.data.cover_url && response.data.cover_url !== "") {
+                    actionsHtml += '<a class="btn btn-primary" href="' + response.data.cover_url + '" target="_blank" download="cover" referrerpolicy="no-referrer"><span>下载封面</span></a>';
+                }
 
                 // 如果video_url不为空, 则显示下载视频按钮
                 if (response.data.video_url && response.data.video_url !== "") {
@@ -646,6 +685,12 @@
                 }
                 
                 resultActions.innerHTML = actionsHtml;
+                
+                // 加载封面图片
+                if (response.data.cover_url && response.data.cover_url !== "") {
+                    const coverImage = document.getElementById('coverImage');
+                    loadImageWithFallback(response.data.cover_url, coverImage);
+                }
                 
                 // 创建图集
                 let galleryHtml = '';
@@ -655,7 +700,7 @@
                     
                     response.data.images.forEach(function (item, index) {
                         galleryHtml += '<div class="image-container">';
-                        galleryHtml += '<img src="' + item.url + '" alt="图片 ' + (index + 1) + '" />';
+                        galleryHtml += '<img src="" alt="图片 ' + (index + 1) + '" id="galleryImage' + index + '" />';
                         // 如果 item.live_photo_url 不为空，显示下载按钮
                         if (item.live_photo_url) {
                             galleryHtml += '<a class="btn btn-secondary" href="' + item.live_photo_url + '" target="_blank" download="livephoto" referrerpolicy="no-referrer"><span>下载LivePhoto</span></a>';
@@ -667,6 +712,17 @@
                 }
                 
                 galleryContainer.innerHTML = galleryHtml;
+                
+                // 加载图集图片
+                if (response.data.images && response.data.images.length > 0) {
+                    response.data.images.forEach(function (item, index) {
+                        const galleryImage = document.getElementById('galleryImage' + index);
+                        if (galleryImage) {
+                            loadImageWithFallback(item.url, galleryImage);
+                        }
+                    });
+                }
+                
                 resultSection.style.display = 'block';
                 errorMessage.style.display = 'none';
                 
