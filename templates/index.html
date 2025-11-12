@@ -268,7 +268,7 @@
         }
 
         .result-title {
-            font-size: 24px;
+            font-size: 16px;
             font-weight: 700;
             margin-bottom: 20px;
             text-align: center;
@@ -282,37 +282,35 @@
             flex-wrap: wrap;
         }
 
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .gallery-item {
+        .image-container {
+            display: inline-block;
+            margin: 1em;
+            text-align: center;
             background: var(--bg-secondary);
             border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            transition: all 0.3s;
-        }
-
-        .gallery-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px var(--shadow-lg);
-        }
-
-        .gallery-img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            display: block;
-        }
-
-        .gallery-actions {
             padding: 15px;
-            display: flex;
-            justify-content: center;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .image-container:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px var(--shadow-lg);
+        }
+
+        .image-container img {
+            width: 160px;
+            height: auto;
+            border-radius: 8px;
+            display: block;
+            margin-bottom: 0.5em;
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .image-container img:hover {
+            transform: scale(1.05);
+            border-color: var(--primary);
         }
 
         .loading {
@@ -347,6 +345,20 @@
             text-align: center;
         }
 
+        .gallery-title {
+            font-size: 20px;
+            font-weight: 600;
+            text-align: center;
+            margin: 30px 0 20px 0;
+            color: var(--text-primary);
+        }
+
+        .separator {
+            margin: 30px 0;
+            border: none;
+            border-top: 2px solid var(--border);
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 15px;
@@ -377,8 +389,15 @@
                 flex-direction: column;
             }
             
-            .gallery {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            .image-container {
+                display: block;
+                margin: 1em auto;
+                max-width: 280px;
+            }
+            
+            .image-container img {
+                width: 100%;
+                max-width: 240px;
             }
         }
 
@@ -393,10 +412,6 @@
             
             .platforms-list {
                 font-size: 14px;
-            }
-            
-            .gallery {
-                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -452,7 +467,7 @@
             <div class="result-section" id="resultSection">
                 <h3 class="result-title" id="resultTitle"></h3>
                 <div class="result-actions" id="resultActions"></div>
-                <div class="gallery" id="gallery"></div>
+                <div id="galleryContainer"></div>
             </div>
         </div>
     </div>
@@ -483,7 +498,7 @@
         const resultSection = document.getElementById('resultSection');
         const resultTitle = document.getElementById('resultTitle');
         const resultActions = document.getElementById('resultActions');
-        const gallery = document.getElementById('gallery');
+        const galleryContainer = document.getElementById('galleryContainer');
 
         // 解析视频
         parseBtn.addEventListener('click', () => {
@@ -591,39 +606,35 @@
                 // 显示结果
                 resultTitle.textContent = response.data.title;
                 
-                // 创建操作按钮
+                // 创建操作按钮 - 保持与原版一致
                 let actionsHtml = '';
-                actionsHtml += `<a class="btn btn-primary" href="${response.data.cover_url}" target="_blank" download="cover" referrerpolicy="no-referrer">下载封面</a>`;
-                
-                if (response.data.video_url) {
-                    actionsHtml += `<a class="btn btn-primary" href="${response.data.video_url}" target="_blank" download="video" referrerpolicy="no-referrer">下载视频</a>`;
+                actionsHtml += '<a class="btn btn-primary" href="' + response.data.cover_url + '" target="_blank" download="cover" referrerpolicy="no-referrer"><span>下载封面</span></a>';
+
+                // 如果video_url不为空, 则显示下载视频按钮
+                if (response.data.video_url != "") {
+                    actionsHtml += '<a class="btn btn-primary" href="' + response.data.video_url + '" target="_blank" download="video" referrerpolicy="no-referrer"><span>下载视频</span></a>';
                 }
                 
                 resultActions.innerHTML = actionsHtml;
                 
-                // 创建图集
+                // 创建图集 - 保持与原版一致的显示方式
+                let galleryHtml = '';
                 if (response.data.images && response.data.images.length > 0) {
-                    let galleryHtml = '';
+                    galleryHtml += '<div class="separator"></div>';
+                    galleryHtml += '<div class="gallery-title">封面</div>';
                     
-                    response.data.images.forEach((item, index) => {
-                        galleryHtml += `
-                            <div class="gallery-item">
-                                <img src="${item.url}" alt="图片 ${index + 1}" class="gallery-img">
-                                <div class="gallery-actions">
-                                    ${item.live_photo_url ? 
-                                        `<a class="btn btn-secondary" href="${item.live_photo_url}" target="_blank" download="livephoto" referrerpolicy="no-referrer">下载LivePhoto</a>` : 
-                                        '<span style="color: var(--text-secondary); font-size: 14px;">静态图片</span>'
-                                    }
-                                </div>
-                            </div>
-                        `;
+                    response.data.images.forEach(function (item) {
+                        galleryHtml += '<div class="image-container">';
+                        galleryHtml += '<img src="' + item.url + '" style="display: block; margin-bottom: 0.5em;"/>';
+                        // 如果 item.live_photo_url 不为空，显示下载按钮
+                        if (item.live_photo_url) {
+                            galleryHtml += '<a class="btn btn-secondary" href="' + item.live_photo_url + '" target="_blank" download="video" referrerpolicy="no-referrer" style="text-transform: none;"><span>下载LivePhoto</span></a>';
+                        }
+                        galleryHtml += '</div>';
                     });
-                    
-                    gallery.innerHTML = galleryHtml;
-                } else {
-                    gallery.innerHTML = '';
                 }
                 
+                galleryContainer.innerHTML = galleryHtml;
                 resultSection.style.display = 'block';
                 errorMessage.style.display = 'none';
                 
