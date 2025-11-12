@@ -15,10 +15,10 @@ RUN go mod download
 COPY . .
 RUN go build -ldflags="-s -w" -o /app/main ./main.go
 
+FROM alpine:latest
 
-FROM scratch
+RUN apk update --no-cache && apk add --no-cache ca-certificates tzdata
 
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /usr/share/zoneinfo/Asia/Shanghai
 ENV TZ Asia/Shanghai
 
