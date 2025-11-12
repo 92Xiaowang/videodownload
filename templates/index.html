@@ -268,7 +268,7 @@
         }
 
         .result-title {
-            font-size: 16px;
+            font-size: 24px;
             font-weight: 700;
             margin-bottom: 20px;
             text-align: center;
@@ -621,7 +621,7 @@
                 let galleryHtml = '';
                 if (response.data.images && response.data.images.length > 0) {
                     galleryHtml += '<div class="separator"></div>';
-                    galleryHtml += '<div class="gallery-title">封面</div>';
+                    galleryHtml += '<div class="gallery-title">图集</div>';
                     
                     response.data.images.forEach(function (item) {
                         galleryHtml += '<div class="image-container">';
