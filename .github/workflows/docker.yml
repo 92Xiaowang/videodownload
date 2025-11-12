@@ -35,7 +35,7 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/parse-video:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/videodownload:latest
           platforms: |
             linux/amd64
             linux/arm/v7
