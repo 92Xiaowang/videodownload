@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>视频解析下载</title>
+    <title>在线视频解析下载</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='85'>🎬</text></svg>">
     <style>
         :root {
@@ -136,27 +136,17 @@
             letter-spacing: -0.5px;
         }
 
-        .description {
-            color: var(--text-secondary);
-            margin-bottom: 30px;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-            font-size: 18px;
-            line-height: 1.7;
-        }
-
         .platforms-container {
             background: var(--bg-secondary);
             border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 30px;
+            padding: 10px;
+            margin-bottom: 5px;
             border: 1px solid var(--border);
         }
 
         .platforms-title {
-            font-weight: 600;
-            margin-bottom: 15px;
+            font-weight: 100;
+            margin-bottom: 5px;
             color: var(--text-primary);
             text-align: center;
             font-size: 18px;
@@ -166,7 +156,7 @@
             text-align: center;
             color: var(--text-secondary);
             line-height: 1.8;
-            font-size: 16px;
+            font-size: 12px;
         }
 
         .input-group {
@@ -234,13 +224,13 @@
         .tip-box {
             background: var(--bg-secondary);
             border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 30px;
+            padding: 10px;
+            margin-bottom: 5px;
             border-left: 4px solid var(--warning);
         }
 
         .tip-title {
-            font-weight: 600;
+            font-weight: 200;
             margin-bottom: 10px;
             color: var(--text-primary);
             font-size: 18px;
@@ -268,10 +258,30 @@
         }
 
         .result-title {
-            font-size: 24px;
+            font-size: 16px;
             font-weight: 700;
             margin-bottom: 20px;
             text-align: center;
+        }
+
+        .cover-container {
+            text-align: center;
+            margin: 25px 0;
+        }
+
+        .cover-image {
+            max-width: 300px;
+            max-height: 200px;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            box-shadow: 0 8px 20px var(--shadow-lg);
+            transition: all 0.3s ease;
+        }
+
+        .cover-image:hover {
+            transform: scale(1.03);
+            box-shadow: 0 12px 25px var(--shadow-lg);
+            border-color: var(--primary);
         }
 
         .result-actions {
@@ -300,7 +310,8 @@
 
         .image-container img {
             width: 160px;
-            height: auto;
+            height: 120px;
+            object-fit: cover;
             border-radius: 8px;
             display: block;
             margin-bottom: 0.5em;
@@ -359,6 +370,10 @@
             border-top: 2px solid var(--border);
         }
 
+        .gallery-container {
+            text-align: center;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 15px;
@@ -370,6 +385,11 @@
             
             h1 {
                 font-size: 28px;
+            }
+            
+            .cover-image {
+                max-width: 250px;
+                max-height: 150px;
             }
             
             .input-group {
@@ -398,6 +418,7 @@
             .image-container img {
                 width: 100%;
                 max-width: 240px;
+                height: 180px;
             }
         }
 
@@ -410,9 +431,11 @@
                 font-size: 24px;
             }
             
-            .platforms-list {
-                font-size: 14px;
+            .cover-image {
+                max-width: 200px;
+                max-height: 120px;
             }
+            
         }
     </style>
 </head>
@@ -427,12 +450,10 @@
             
             <div class="header">
                 <h1>在线短视频去水印解析</h1>
-                <p class="description">轻松解析并下载抖音、快手、微博等平台的短视频，去除水印，保留原始画质</p>
                 
                 <div class="platforms-container">
-                    <div class="platforms-title">目前支持的平台</div>
                     <div class="platforms-list">
-                        抖音 / 皮皮虾 / 火山 / 微视 / 最右 / 快手 / 全民小视频 / 皮皮搞笑 / 梨视频 / 西瓜 / 微博 / 虎牙 / 绿洲 / 好看 / 逗拍 / 美拍 / 新片场 / A站 / 全民K歌 / 6间房
+                        支持平台：抖音/皮皮虾/火山/微视/最右/快手/全民小视频/皮皮搞笑/梨视频/西瓜/微博/虎牙/绿洲/好看/逗拍/美拍/新片场/A站/全民K歌/6间房
                     </div>
                 </div>
             </div>
@@ -466,8 +487,9 @@
 
             <div class="result-section" id="resultSection">
                 <h3 class="result-title" id="resultTitle"></h3>
+                <div class="cover-container" id="coverContainer"></div>
                 <div class="result-actions" id="resultActions"></div>
-                <div id="galleryContainer"></div>
+                <div class="gallery-container" id="galleryContainer"></div>
             </div>
         </div>
     </div>
@@ -497,6 +519,7 @@
         const errorMessage = document.getElementById('errorMessage');
         const resultSection = document.getElementById('resultSection');
         const resultTitle = document.getElementById('resultTitle');
+        const coverContainer = document.getElementById('coverContainer');
         const resultActions = document.getElementById('resultActions');
         const galleryContainer = document.getElementById('galleryContainer');
 
@@ -603,32 +626,41 @@
             if (response.code === 200) {
                 showSuccess('解析成功');
                 
-                // 显示结果
+                // 显示结果标题
                 resultTitle.textContent = response.data.title;
                 
-                // 创建操作按钮 - 保持与原版一致
+                // 显示封面图片
+                let coverHtml = '';
+                if (response.data.cover_url && response.data.cover_url !== "") {
+                    coverHtml = '<img src="' + response.data.cover_url + '" alt="视频封面" class="cover-image" />';
+                }
+                coverContainer.innerHTML = coverHtml;
+                
+                // 创建操作按钮
                 let actionsHtml = '';
                 actionsHtml += '<a class="btn btn-primary" href="' + response.data.cover_url + '" target="_blank" download="cover" referrerpolicy="no-referrer"><span>下载封面</span></a>';
 
                 // 如果video_url不为空, 则显示下载视频按钮
-                if (response.data.video_url != "") {
+                if (response.data.video_url && response.data.video_url !== "") {
                     actionsHtml += '<a class="btn btn-primary" href="' + response.data.video_url + '" target="_blank" download="video" referrerpolicy="no-referrer"><span>下载视频</span></a>';
                 }
                 
                 resultActions.innerHTML = actionsHtml;
                 
-                // 创建图集 - 保持与原版一致的显示方式
+                // 创建图集
                 let galleryHtml = '';
                 if (response.data.images && response.data.images.length > 0) {
                     galleryHtml += '<div class="separator"></div>';
                     galleryHtml += '<div class="gallery-title">图集</div>';
                     
-                    response.data.images.forEach(function (item) {
+                    response.data.images.forEach(function (item, index) {
                         galleryHtml += '<div class="image-container">';
-                        galleryHtml += '<img src="' + item.url + '" style="display: block; margin-bottom: 0.5em;"/>';
+                        galleryHtml += '<img src="' + item.url + '" alt="图片 ' + (index + 1) + '" />';
                         // 如果 item.live_photo_url 不为空，显示下载按钮
                         if (item.live_photo_url) {
-                            galleryHtml += '<a class="btn btn-secondary" href="' + item.live_photo_url + '" target="_blank" download="video" referrerpolicy="no-referrer" style="text-transform: none;"><span>下载LivePhoto</span></a>';
+                            galleryHtml += '<a class="btn btn-secondary" href="' + item.live_photo_url + '" target="_blank" download="livephoto" referrerpolicy="no-referrer"><span>下载LivePhoto</span></a>';
+                        } else {
+                            galleryHtml += '<span style="color: var(--text-secondary); font-size: 14px; display: block; margin-top: 8px;">静态图片</span>';
                         }
                         galleryHtml += '</div>';
                     });
